@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient</RootNamespace>
+<!--    <TargetFrameworks>net8.0;net6.0;net462;net472;net48</TargetFrameworks>-->
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Description>Dataverse ServiceClient Instrumentation for OpenTelemetry .NET</Description>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</RestoreLockedMode>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Label="PackageProperties">
+    <Copyright>Copyright Remy van Duijkeren</Copyright>
+    <Authors>Remy van Duijkeren (@RemyDuijkeren)</Authors>
+    <PackageProjectUrl>https://github.com/RemyDuijkeren/OpenTelemetry.Instrumentation.DataverseServiceClient</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageIcon>opentelemetry-icon-color.png</PackageIcon>
+    <RepositoryUrl>https://github.com/RemyDuijkeren/OpenTelemetry.Instrumentation.DataverseServiceClient.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>ServiceClient Dataverse Dynamics CommonDataService CDS PowerApps PowerPlatform OpenTelemetry Monitoring Telemetry Tracing</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <PropertyGroup Label="SourceLinkProperties">
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild Condition="'$(Deterministic)'=='true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net8.0'">
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.17" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Add InternalsVisibleTo to src projects to enable testing internal methods https://www.meziantou.net/declaring-internalsvisibleto-in-the-csproj.htm -->
+    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../docs/opentelemetry-icon-color.png" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+
+</Project>

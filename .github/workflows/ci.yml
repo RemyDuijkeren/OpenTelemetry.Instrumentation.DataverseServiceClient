@@ -1,0 +1,52 @@
+---
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+    paths-ignore:
+      - docs/**
+  pull_request:
+    branches: [master, main]
+    paths-ignore:
+      - docs/**
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🛠️ Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: 💾 Restore dependencies
+        run: dotnet restore -c Release
+
+      - name: ⚙️ Build
+        run: dotnet build -c Release --no-restore
+
+      - name: 🚦 Test
+        run: dotnet test -c Release -l trx --results-directory "./artifacts/test-results/" --no-build
+
+      - name: 📦 Pack
+        run: dotnet pack -c Release -o "./artifacts/pack/" --no-build
+
+      - name: 📋 Test reporter
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: unittests
+          path: ./artifacts/test-results/*.trx
+          reporter: dotnet-trx

@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6D7F211D-45F7-46EE-A08A-D56459AF21F1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4980C55E-9ABE-4B13-8DA7-D3406DBCCA57}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTelemetry.Instrumentation.DataverseServiceClient", "src\OpenTelemetry.Instrumentation.DataverseServiceClient\OpenTelemetry.Instrumentation.DataverseServiceClient.csproj", "{C63D59C5-96D3-4550-BE5A-83425A6D9A29}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenTelemetry.Instrumentation.DataverseServiceClient.Tests", "tests\OpenTelemetry.Instrumentation.DataverseServiceClient.Tests\OpenTelemetry.Instrumentation.DataverseServiceClient.Tests.csproj", "{F8F18EA9-77BE-4183-B183-E471F48E3D77}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D65B1412-D557-4C3C-9497-EF347D65D80A}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\ci.yml = .github\workflows\ci.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C63D59C5-96D3-4550-BE5A-83425A6D9A29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C63D59C5-96D3-4550-BE5A-83425A6D9A29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C63D59C5-96D3-4550-BE5A-83425A6D9A29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C63D59C5-96D3-4550-BE5A-83425A6D9A29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8F18EA9-77BE-4183-B183-E471F48E3D77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8F18EA9-77BE-4183-B183-E471F48E3D77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8F18EA9-77BE-4183-B183-E471F48E3D77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8F18EA9-77BE-4183-B183-E471F48E3D77}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C63D59C5-96D3-4550-BE5A-83425A6D9A29} = {6D7F211D-45F7-46EE-A08A-D56459AF21F1}
+		{F8F18EA9-77BE-4183-B183-E471F48E3D77} = {4980C55E-9ABE-4B13-8DA7-D3406DBCCA57}
+	EndGlobalSection
+EndGlobal
