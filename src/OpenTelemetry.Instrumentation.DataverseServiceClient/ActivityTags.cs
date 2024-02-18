@@ -12,7 +12,15 @@ static class ActivityTags
     public const string DbDataverseOrganizationId = "db.dataverse.organization_id";
     public const string DbDataverseOrganizationVersion = "db.dataverse.organization_version";
     public const string DbDataverseGeo = "db.dataverse.geo";
+    public const string DbUrl = "db.url";
+    public const string DbInstance = "db.instance";
+
+    public const string ExceptionEventName = "exception";
+    public const string ExceptionType = "exception.type";
+    public const string ExceptionMessage = "exception.message";
+    public const string ExceptionStacktrace = "exception.stacktrace";
     public const string ErrorType = "error.type";
+
     public const string ServerAddress = "server.address";
     public const string ServerPort = "server.port";
 }

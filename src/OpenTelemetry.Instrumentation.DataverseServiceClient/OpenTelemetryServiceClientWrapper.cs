@@ -6,50 +6,50 @@ using Microsoft.Xrm.Sdk.Query;
 namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient;
 
 /// <summary>Decorate <see cref="IOrganizationServiceAsync2" /> interface with OpenTelemetry instrumentation.</summary>
-public class OpenTelemetryServiceClientWrapper : IOrganizationServiceAsync2
+public class OpenTelemetryServiceClientWrapper(IOrganizationService serviceClient) : IOrganizationServiceAsync2
 {
-    readonly IOrganizationServiceAsync2 _client;
-    Guid ConnectedOrgId { get; }
+    readonly IOrganizationService _service = serviceClient ?? throw new ArgumentNullException(nameof(serviceClient));
 
-    public OpenTelemetryServiceClientWrapper(IOrganizationServiceAsync2 serviceClient)
-    {
-        _client = serviceClient ?? throw new ArgumentNullException(nameof(serviceClient));
+    IOrganizationService Service => _service;
 
-        ConnectedOrgId = serviceClient is ServiceClient client
-            ? client.ConnectedOrgId
-            : Guid.Empty;
-    }
+    IOrganizationServiceAsync ServiceAsync => _service as IOrganizationServiceAsync ??
+                                              throw new InvalidOperationException($"Wrapped service client is not a {typeof(IOrganizationServiceAsync)}!");
+
+    IOrganizationServiceAsync2 ServiceAsync2 => _service as IOrganizationServiceAsync2 ??
+                                                throw new InvalidOperationException($"Wrapped service client is not a {typeof(IOrganizationServiceAsync2)}!");
+
+    Guid ConnectedOrgId => _service is ServiceClient client ? client.ConnectedOrgId : Guid.Empty;
 
     /// <inheritdoc />
     public Guid Create(Entity entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
-        using Activity? activity = _client.StartDataverseActivity(entity);
-        return _client.Create(entity);
+        using Activity? activity = Service.StartDataverseActivity(entity);
+        return Service.Create(entity);
     }
 
     /// <inheritdoc />
     public Entity Retrieve(string entityName, Guid id, ColumnSet columnSet)
     {
         ArgumentNullException.ThrowIfNull(entityName);
-        using Activity? activity = _client.StartDataverseActivity(new EntityReference(entityName, id));
-        return _client.Retrieve(entityName, id, columnSet);
+        using Activity? activity = Service.StartDataverseActivity(new EntityReference(entityName, id));
+        return Service.Retrieve(entityName, id, columnSet);
     }
 
     /// <inheritdoc />
     public void Update(Entity entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
-        using Activity? activity = _client.StartDataverseActivity(entity);
-        _client.Update(entity);
+        using Activity? activity = Service.StartDataverseActivity(entity);
+        Service.Update(entity);
     }
 
     /// <inheritdoc />
     public void Delete(string entityName, Guid id)
     {
         ArgumentNullException.ThrowIfNull(entityName);
-        using Activity? activity = _client.StartDataverseActivity(new EntityReference(entityName, id));
-        _client.Delete(entityName, id);
+        using Activity? activity = Service.StartDataverseActivity(new EntityReference(entityName, id));
+        Service.Delete(entityName, id);
     }
 
     /// <inheritdoc />
@@ -71,22 +71,22 @@ public class OpenTelemetryServiceClientWrapper : IOrganizationServiceAsync2
             }
         }
 
-        using Activity? activity = _client.StartDataverseActivity(entityName: entityName, operation: request.RequestName);
-        return _client.Execute(request);
+        using Activity? activity = Service.StartDataverseActivity(entityName: entityName, operation: request.RequestName);
+        return Service.Execute(request);
     }
 
     /// <inheritdoc />
     public void Associate(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities)
     {
-        using Activity? activity = _client.StartDataverseActivity(new EntityReference(entityName, entityId));
-        _client.Associate(entityName, entityId, relationship, relatedEntities);
+        using Activity? activity = Service.StartDataverseActivity(new EntityReference(entityName, entityId));
+        Service.Associate(entityName, entityId, relationship, relatedEntities);
     }
 
     /// <inheritdoc />
     public void Disassociate(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities)
     {
-        using Activity? activity = _client.StartDataverseActivity(new EntityReference(entityName, entityId));
-        _client.Disassociate(entityName, entityId, relationship, relatedEntities);
+        using Activity? activity = Service.StartDataverseActivity(new EntityReference(entityName, entityId));
+        Service.Disassociate(entityName, entityId, relationship, relatedEntities);
     }
 
     /// <inheritdoc />
@@ -99,22 +99,22 @@ public class OpenTelemetryServiceClientWrapper : IOrganizationServiceAsync2
             case QueryExpression queryExpression:
             {
                 // TODO: format queryExpression to a statement to be used in the activity
-                using Activity? activity = _client.StartDataverseActivity(queryExpression.EntityName);
-                return _client.RetrieveMultiple(query);
+                using Activity? activity = Service.StartDataverseActivity(queryExpression.EntityName);
+                return Service.RetrieveMultiple(query);
             }
             case QueryByAttribute queryByAttribute:
             {
                 // TODO: format queryByAttribute to a statement to be used in the activity
-                using Activity? activity = _client.StartDataverseActivity(queryByAttribute.EntityName);
-                return _client.RetrieveMultiple(query);
+                using Activity? activity = Service.StartDataverseActivity(queryByAttribute.EntityName);
+                return Service.RetrieveMultiple(query);
             }
             case FetchExpression fetchExpression:
             {
-                using Activity? activity = _client.StartDataverseActivity(statement: fetchExpression.Query);
-                return _client.RetrieveMultiple(query);
+                using Activity? activity = Service.StartDataverseActivity(statement: fetchExpression.Query);
+                return Service.RetrieveMultiple(query);
             }
             default:
-                return _client.RetrieveMultiple(query);
+                return Service.RetrieveMultiple(query);
         }
     }
 
@@ -122,32 +122,32 @@ public class OpenTelemetryServiceClientWrapper : IOrganizationServiceAsync2
     public Task<Guid> CreateAsync(Entity entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
-        using Activity? activity = _client.StartDataverseActivity(entity);
-        return _client.CreateAsync(entity);
+        using Activity? activity = ServiceAsync.StartDataverseActivity(entity);
+        return ServiceAsync.CreateAsync(entity);
     }
 
     /// <inheritdoc />
     public Task<Entity> RetrieveAsync(string entityName, Guid id, ColumnSet columnSet)
     {
         ArgumentNullException.ThrowIfNull(entityName);
-        using Activity? activity = _client.StartDataverseActivity(new EntityReference(entityName, id));
-        return _client.RetrieveAsync(entityName, id, columnSet);
+        using Activity? activity = ServiceAsync.StartDataverseActivity(new EntityReference(entityName, id));
+        return ServiceAsync.RetrieveAsync(entityName, id, columnSet);
     }
 
     /// <inheritdoc />
     public Task UpdateAsync(Entity entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
-        using Activity? activity = _client.StartDataverseActivity(entity);
-        return _client.UpdateAsync(entity);
+        using Activity? activity = ServiceAsync.StartDataverseActivity(entity);
+        return ServiceAsync.UpdateAsync(entity);
     }
 
     /// <inheritdoc />
     public Task DeleteAsync(string entityName, Guid id)
     {
         ArgumentNullException.ThrowIfNull(entityName);
-        using Activity? activity = _client.StartDataverseActivity(new EntityReference(entityName, id));
-        return _client.DeleteAsync(entityName, id);
+        using Activity? activity = ServiceAsync.StartDataverseActivity(new EntityReference(entityName, id));
+        return ServiceAsync.DeleteAsync(entityName, id);
     }
 
     /// <inheritdoc />
@@ -169,22 +169,22 @@ public class OpenTelemetryServiceClientWrapper : IOrganizationServiceAsync2
             }
         }
 
-        using Activity? activity1 = _client.StartDataverseActivity(entityName: entityName, operation: request.RequestName);
-        return _client.ExecuteAsync(request);
+        using Activity? activity1 = ServiceAsync.StartDataverseActivity(entityName: entityName, operation: request.RequestName);
+        return ServiceAsync.ExecuteAsync(request);
     }
 
     /// <inheritdoc />
     public Task AssociateAsync(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities)
     {
-        using Activity? activity = _client.StartDataverseActivity(new EntityReference(entityName, entityId));
-        return _client.AssociateAsync(entityName, entityId, relationship, relatedEntities);
+        using Activity? activity = ServiceAsync.StartDataverseActivity(new EntityReference(entityName, entityId));
+        return ServiceAsync.AssociateAsync(entityName, entityId, relationship, relatedEntities);
     }
 
     /// <inheritdoc />
     public Task DisassociateAsync(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities)
     {
-        using Activity? activity = _client.StartDataverseActivity(new EntityReference(entityName, entityId));
-        return _client.DisassociateAsync(entityName, entityId, relationship, relatedEntities);
+        using Activity? activity = ServiceAsync.StartDataverseActivity(new EntityReference(entityName, entityId));
+        return ServiceAsync.DisassociateAsync(entityName, entityId, relationship, relatedEntities);
     }
 
     /// <inheritdoc />
@@ -196,21 +196,21 @@ public class OpenTelemetryServiceClientWrapper : IOrganizationServiceAsync2
         {
             case QueryExpression queryExpression:
             {
-                using Activity? activity = _client.StartDataverseActivity(queryExpression.EntityName);
-                return _client.RetrieveMultipleAsync(query);
+                using Activity? activity = ServiceAsync.StartDataverseActivity(queryExpression.EntityName);
+                return ServiceAsync.RetrieveMultipleAsync(query);
             }
             case QueryByAttribute queryByAttribute:
             {
-                using Activity? activity = _client.StartDataverseActivity(queryByAttribute.EntityName);
-                return _client.RetrieveMultipleAsync(query);
+                using Activity? activity = ServiceAsync.StartDataverseActivity(queryByAttribute.EntityName);
+                return ServiceAsync.RetrieveMultipleAsync(query);
             }
             case FetchExpression fetchExpression:
             {
-                using Activity? activity = _client.StartDataverseActivity(statement: fetchExpression.Query);
-                return _client.RetrieveMultipleAsync(query);
+                using Activity? activity = ServiceAsync.StartDataverseActivity(statement: fetchExpression.Query);
+                return ServiceAsync.RetrieveMultipleAsync(query);
             }
             default:
-                return _client.RetrieveMultipleAsync(query);
+                return ServiceAsync.RetrieveMultipleAsync(query);
         }
     }
 
@@ -218,40 +218,40 @@ public class OpenTelemetryServiceClientWrapper : IOrganizationServiceAsync2
     public Task AssociateAsync(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities,
         CancellationToken cancellationToken)
     {
-        using Activity? activity = _client.StartDataverseActivity(new EntityReference(entityName, entityId));
-        return _client.AssociateAsync(entityName, entityId, relationship, relatedEntities, cancellationToken);
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(new EntityReference(entityName, entityId));
+        return ServiceAsync2.AssociateAsync(entityName, entityId, relationship, relatedEntities, cancellationToken);
     }
 
     /// <inheritdoc />
     public Task<Guid> CreateAsync(Entity entity, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(entity);
-        using Activity? activity = _client.StartDataverseActivity(entity);
-        return _client.CreateAsync(entity, cancellationToken);
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(entity);
+        return ServiceAsync2.CreateAsync(entity, cancellationToken);
     }
 
     /// <inheritdoc />
     public Task<Entity> CreateAndReturnAsync(Entity entity, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(entity);
-        using Activity? activity = _client.StartDataverseActivity(entity);
-        return _client.CreateAndReturnAsync(entity, cancellationToken);
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(entity);
+        return ServiceAsync2.CreateAndReturnAsync(entity, cancellationToken);
     }
 
     /// <inheritdoc />
     public Task DeleteAsync(string entityName, Guid id, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(entityName);
-        using Activity? activity = _client.StartDataverseActivity(new EntityReference(entityName, id));
-        return _client.DeleteAsync(entityName, id, cancellationToken);
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(new EntityReference(entityName, id));
+        return ServiceAsync2.DeleteAsync(entityName, id, cancellationToken);
     }
 
     /// <inheritdoc />
     public Task DisassociateAsync(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities,
         CancellationToken cancellationToken)
     {
-        using Activity? activity = _client.StartDataverseActivity(new EntityReference(entityName, entityId));
-        return _client.DisassociateAsync(entityName, entityId, relationship, relatedEntities, cancellationToken);
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(new EntityReference(entityName, entityId));
+        return ServiceAsync2.DisassociateAsync(entityName, entityId, relationship, relatedEntities, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -273,16 +273,16 @@ public class OpenTelemetryServiceClientWrapper : IOrganizationServiceAsync2
             }
         }
 
-        using Activity? activity1 = _client.StartDataverseActivity(entityName: entityName, operation: request.RequestName);
-        return _client.ExecuteAsync(request, cancellationToken);
+        using Activity? activity1 = ServiceAsync2.StartDataverseActivity(entityName: entityName, operation: request.RequestName);
+        return ServiceAsync2.ExecuteAsync(request, cancellationToken);
     }
 
     /// <inheritdoc />
     public Task<Entity> RetrieveAsync(string entityName, Guid id, ColumnSet columnSet, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(entityName);
-        using Activity? activity = _client.StartDataverseActivity(new EntityReference(entityName, id));
-        return _client.RetrieveAsync(entityName, id, columnSet, cancellationToken);
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(new EntityReference(entityName, id));
+        return ServiceAsync2.RetrieveAsync(entityName, id, columnSet, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -294,21 +294,21 @@ public class OpenTelemetryServiceClientWrapper : IOrganizationServiceAsync2
         {
             case QueryExpression queryExpression:
             {
-                using Activity? activity = _client.StartDataverseActivity(queryExpression.EntityName);
-                return _client.RetrieveMultipleAsync(query, cancellationToken);
+                using Activity? activity = ServiceAsync2.StartDataverseActivity(queryExpression.EntityName);
+                return ServiceAsync2.RetrieveMultipleAsync(query, cancellationToken);
             }
             case QueryByAttribute queryByAttribute:
             {
-                using Activity? activity = _client.StartDataverseActivity(queryByAttribute.EntityName);
-                return _client.RetrieveMultipleAsync(query, cancellationToken);
+                using Activity? activity = ServiceAsync2.StartDataverseActivity(queryByAttribute.EntityName);
+                return ServiceAsync2.RetrieveMultipleAsync(query, cancellationToken);
             }
             case FetchExpression fetchExpression:
             {
-                using Activity? activity = _client.StartDataverseActivity(statement: fetchExpression.Query);
-                return _client.RetrieveMultipleAsync(query, cancellationToken);
+                using Activity? activity = ServiceAsync2.StartDataverseActivity(statement: fetchExpression.Query);
+                return ServiceAsync2.RetrieveMultipleAsync(query, cancellationToken);
             }
             default:
-                return _client.RetrieveMultipleAsync(query, cancellationToken);
+                return ServiceAsync2.RetrieveMultipleAsync(query, cancellationToken);
         }
     }
 
@@ -316,10 +316,10 @@ public class OpenTelemetryServiceClientWrapper : IOrganizationServiceAsync2
     public Task UpdateAsync(Entity entity, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(entity);
-        using Activity? activity = _client.StartDataverseActivity(entity);
-        return _client.UpdateAsync(entity, cancellationToken);
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(entity);
+        return ServiceAsync2.UpdateAsync(entity, cancellationToken);
     }
 
     public static implicit operator ServiceClient(OpenTelemetryServiceClientWrapper wrapper) =>
-        wrapper._client as ServiceClient ?? throw new InvalidOperationException("Wrapped client is not a ServiceClient.");
+        wrapper._service as ServiceClient ?? throw new InvalidOperationException("Wrapped client is not a ServiceClient.");
 }

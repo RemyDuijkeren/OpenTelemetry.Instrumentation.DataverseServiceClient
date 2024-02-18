@@ -7,7 +7,8 @@ namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient;
 
 public static class ServiceClientExtensions
 {
-    public static readonly ActivitySource Dataverse = new("Microsoft.PowerPlatform.Dataverse.Client", "1.0.0");
+    // Microsoft.PowerPlatform.Dataverse.Client ?
+    public static readonly ActivitySource DataverseTracer = new("OpenTelemetry.Instrumentation.DataverseServiceClient", "1.0.0");
     const string DataverseSystem = "dataverse";
 
     /// <summary>Creates and starts a new <see cref="Activity"/> object if there is any listener to the Activity events, returns null otherwise.</summary>
@@ -18,7 +19,7 @@ public static class ServiceClientExtensions
     /// <returns>An <see cref="Activity"/> instance representing the started activity. Returns null if the activity could not be started.</returns>
     public static Activity? StartDataverseActivity(this IOrganizationService service, string? entityName = null, string? statement = null, [CallerMemberName] string? operation = null)
     {
-        Activity? activity = Dataverse.StartActivity(name: $"{operation} {entityName}",
+        Activity? activity = DataverseTracer.StartActivity(name: $"{operation} {entityName}",
             kind: ActivityKind.Client, tags: CreateInitialTags(service));
 
         activity?.SetTag(ActivityTags.DbOperation, operation);
@@ -36,7 +37,7 @@ public static class ServiceClientExtensions
     /// <returns>An <see cref="Activity"/> instance representing the started activity. Returns null if the activity could not be started.</returns>
     public static Activity? StartDataverseActivity(this IOrganizationService service, Entity entity, string? statement = null, [CallerMemberName] string? operation = null)
     {
-        Activity? activity = Dataverse.StartActivity(name: $"{operation} {entity.LogicalName}",
+        Activity? activity = DataverseTracer.StartActivity(name: $"{operation} {entity.LogicalName}",
             kind: ActivityKind.Client, tags: CreateInitialTags(service));
 
         activity?.SetTag(ActivityTags.DbOperation, operation);
@@ -54,7 +55,7 @@ public static class ServiceClientExtensions
     /// <returns>An <see cref="Activity"/> instance representing the started activity. Returns null if the activity could not be started.</returns>
     public static Activity? StartDataverseActivity(this IOrganizationService service, EntityReference entityReference, string? statement = null, [CallerMemberName] string? operation = null)
     {
-        Activity? activity = Dataverse.StartActivity(name: $"{operation} {entityReference.LogicalName}",
+        Activity? activity = DataverseTracer.StartActivity(name: $"{operation} {entityReference.LogicalName}",
             kind: ActivityKind.Client, tags: CreateInitialTags(service));
 
         activity?.SetTag(ActivityTags.DbOperation, operation);
