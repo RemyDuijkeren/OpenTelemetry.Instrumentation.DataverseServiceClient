@@ -32,7 +32,7 @@ jobs:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: 💾 Restore dependencies
-        run: dotnet restore -c Release
+        run: dotnet restore
 
       - name: ⚙️ Build
         run: dotnet build -c Release --no-restore
