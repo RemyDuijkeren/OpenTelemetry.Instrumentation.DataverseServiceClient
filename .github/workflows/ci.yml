@@ -50,3 +50,5 @@ jobs:
           name: unittests
           path: ./artifacts/test-results/*.trx
           reporter: dotnet-trx
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
