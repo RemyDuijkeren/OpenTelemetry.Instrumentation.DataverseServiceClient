@@ -5,18 +5,20 @@
 <!--    <TargetFrameworks>net8.0;net6.0;net462;net472;net48</TargetFrameworks>-->
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Description>Dataverse ServiceClient Instrumentation for OpenTelemetry .NET</Description>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RestoreLockedMode Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</RestoreLockedMode>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <PropertyGroup Label="PackageProperties">
-    <Copyright>Copyright Remy van Duijkeren</Copyright>
+    <PackageId>RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient</PackageId>
+    <Description>Dataverse ServiceClient Instrumentation for OpenTelemetry .NET</Description>
+    <Copyright>Copyright (c) Remy van Duijkeren 2024</Copyright>
     <Authors>Remy van Duijkeren (@RemyDuijkeren)</Authors>
     <PackageProjectUrl>https://github.com/RemyDuijkeren/OpenTelemetry.Instrumentation.DataverseServiceClient</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageIcon>opentelemetry-icon-color.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/RemyDuijkeren/OpenTelemetry.Instrumentation.DataverseServiceClient.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>ServiceClient Dataverse Dynamics CommonDataService CDS PowerApps PowerPlatform OpenTelemetry Monitoring Telemetry Tracing</PackageTags>
@@ -38,6 +40,7 @@
     <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.17" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="All" />
+    <PackageReference Include="OpenTelemetry" Version="1.7.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,6 +50,7 @@
 
   <ItemGroup>
     <None Include="../../docs/opentelemetry-icon-color.png" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="../../README.md" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
 
 </Project>

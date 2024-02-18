@@ -1,5 +1,6 @@
 # Dataverse ServiceClient Instrumentation for OpenTelemetry .NET
 
+![CI](https://github.com/RemyDuijkeren/OpenTelemetry.Instrumentation.DataverseServiceClient/workflows/CI/badge.svg)
 [![NuGet](https://img.shields.io/nuget/v/RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient.svg)](https://www.nuget.org/packages/RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient)
 [![NuGet](https://img.shields.io/nuget/dt/RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient.svg)](https://www.nuget.org/packages/RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient)
 
@@ -70,3 +71,4 @@ for more details about each individual attribute:
 ## References
 
 * [OpenTelemetry Project](https://opentelemetry.io/)
+* [Implementing Instrumentation Library](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/docs/trace/extending-the-sdk/README.md#instrumentation-library)
