@@ -40,15 +40,30 @@ jobs:
         run: dotnet build -c Release --no-restore
 
       - name: 🚦 Test
-        run: dotnet test -c Release -l trx --results-directory "./artifacts/test-results/" --no-build
-
-      - name: 📦 Pack
-        run: dotnet pack -c Release -o "./artifacts/pack/" --no-build
+        run: dotnet test -c Release -l trx --results-directory ./artifacts/ --no-build
 
       - name: 📋 Test reporter
         uses: dorny/test-reporter@v1
         if: always()
         with:
           name: unittests
-          path: ./artifacts/test-results/*.trx
+          path: ./artifacts/*.trx
           reporter: dotnet-trx
+
+      - name: 📦 Pack
+        run: dotnet pack -c Release -o ./artifacts/ --no-build
+
+      - name: Setup Nuget Credentials
+        uses: NuGet/setup-nuget@v1
+        with:
+          nuget-api-key: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🚀 Push to GitHub
+        run: dotnet nuget push ./artifacts/*.nupkg -k ${{ secrets.GITHUB_TOKEN }} -s https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+
+      - name: 🗑️ Delete old pre-release packages
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient
+          min-versions-to-keep: 10
+          delete-only-pre-release-versions: true

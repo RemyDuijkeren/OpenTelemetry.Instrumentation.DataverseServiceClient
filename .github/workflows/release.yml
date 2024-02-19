@@ -36,15 +36,20 @@ jobs:
         run: dotnet build -c Release --no-restore
 
       - name: 🚦 Test
-        run: dotnet test -c Release -l trx --results-directory "./artifacts/test-results/" --no-build
-
-      - name: 📦 Pack
-        run: dotnet pack -c Release -o "./artifacts/pack/" --no-build
+        run: dotnet test -c Release -l trx --results-directory ./artifacts/ --no-build
 
       - name: 📋 Test reporter
         uses: dorny/test-reporter@v1
         if: always()
         with:
           name: unittests
-          path: ./artifacts/test-results/*.trx
+          path: ./artifacts/*.trx
           reporter: dotnet-trx
+
+      - name: 📦 Pack
+        run: dotnet pack -c Release -o ./artifacts/ --no-build
+
+      - name: 🚀 Push to NuGet
+        run: |
+          dotnet nuget push **/*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
+          dotnet nuget push **/*.snupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
