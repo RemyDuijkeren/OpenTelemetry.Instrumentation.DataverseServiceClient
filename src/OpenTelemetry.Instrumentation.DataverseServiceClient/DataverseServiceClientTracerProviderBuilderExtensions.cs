@@ -13,51 +13,48 @@ public static class DataverseServiceClientTracerProviderBuilderExtensions
 
         builder.ConfigureServices(services =>
         {
-            TryReplaceOrganizationServiceRegistration<IOrganizationServiceAsync2>(services);
-            TryReplaceOrganizationServiceRegistration<IOrganizationServiceAsync>(services);
-            TryReplaceOrganizationServiceRegistration<IOrganizationService>(services);
+            ReplaceOrganizationServiceRegistration<IOrganizationServiceAsync2>(services);
+            ReplaceOrganizationServiceRegistration<IOrganizationServiceAsync>(services);
+            ReplaceOrganizationServiceRegistration<IOrganizationService>(services);
         });
 
         return builder;
     }
 
-    static void TryReplaceOrganizationServiceRegistration<TService>(IServiceCollection services)
+    static void ReplaceOrganizationServiceRegistration<TService>(IServiceCollection services)
         where TService : class, IOrganizationService
     {
         ServiceDescriptor? originalServiceDescriptor = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(TService));
-
         if (originalServiceDescriptor == null) return;
 
-        // Remove the original registration.
         services.Remove(originalServiceDescriptor);
 
-        // Add the decorator, which uses the original implementation factory to create instances.
+        // TODO: use the original service descriptor lifetime instead of Singleton?
+
+        // Add the decorator, which uses the original service description to create instances.
+        services.AddSingleton(serviceProvider =>
+        {
+            TService originalService = GetOriginalService<TService>(originalServiceDescriptor, serviceProvider);
+            return new OpenTelemetryServiceClientWrapper(originalService) as TService;
+        });
+    }
+
+    static TService GetOriginalService<TService>(ServiceDescriptor originalServiceDescriptor, IServiceProvider serviceProvider)
+        where TService : class, IOrganizationService
+    {
         if (originalServiceDescriptor.ImplementationInstance != null)
         {
-            // if the service was registered as an instance
-            var originalService = (TService)originalServiceDescriptor.ImplementationInstance;
-            services.AddSingleton<TService>(_ =>
-                // Here, we assume that OpenTelemetryServiceClientWrapper has a generic overload for TService as well
-                new OpenTelemetryServiceClientWrapper(originalService) as TService
-            );
+            return (TService)originalServiceDescriptor.ImplementationInstance;
         }
         else if (originalServiceDescriptor.ImplementationFactory != null)
         {
-            // if the service was registered using factory method
-            services.AddSingleton<TService>(serviceProvider =>
-            {
-                var originalService = (TService)originalServiceDescriptor.ImplementationFactory.Invoke(serviceProvider);
-                return new OpenTelemetryServiceClientWrapper(originalService) as TService;
-            });
+            return (TService)originalServiceDescriptor.ImplementationFactory.Invoke(serviceProvider);
         }
         else if (originalServiceDescriptor.ImplementationType != null)
         {
-            // if the service was registered as a type (should not be possible because ServiceClient doesnt have a public constructor without parameters)
-            services.AddSingleton<TService>(serviceProvider =>
-            {
-                var originalService = Activator.CreateInstance(originalServiceDescriptor.ImplementationType) as TService;
-                return new OpenTelemetryServiceClientWrapper(originalService) as TService;
-            });
+            return Activator.CreateInstance(originalServiceDescriptor.ImplementationType) as TService;
         }
+
+        throw new InvalidOperationException("Could not create original service client instance.");
     }
 }
