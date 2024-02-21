@@ -29,17 +29,34 @@ public static class DataverseServiceClientTracerProviderBuilderExtensions
 
         services.Remove(originalServiceDescriptor);
 
-        // TODO: use the original service descriptor lifetime instead of Singleton?
-
         // Add the decorator, which uses the original service description to create instances.
-        services.AddSingleton(serviceProvider =>
+        var implementationFactory = (IServiceProvider serviceProvider) =>
         {
-            TService originalService = GetOriginalService<TService>(originalServiceDescriptor, serviceProvider);
-            return new OpenTelemetryServiceClientWrapper(originalService) as TService;
-        });
+            TService originalService = GetOriginalService<TService>(originalServiceDescriptor, serviceProvider) ??
+                                       throw new InvalidOperationException($"Could not create original service client instance of type {typeof(TService)}!");
+
+            return new OpenTelemetryServiceClientDecorator(originalService) as TService ??
+                   throw new InvalidOperationException($"Could not create {typeof(OpenTelemetryServiceClientDecorator)} instance!");
+        };
+
+        services.AddSingleton(implementationFactory);
+
+        // TODO: use the original service descriptor lifetime instead of Singleton?
+        // switch (originalServiceDescriptor.Lifetime)
+        // {
+        //     case ServiceLifetime.Singleton:
+        //         services.AddSingleton(implementationFactory);
+        //         break;
+        //     case ServiceLifetime.Scoped:
+        //         services.AddScoped(implementationFactory);
+        //         break;
+        //     case ServiceLifetime.Transient:
+        //         services.AddTransient(implementationFactory);
+        //         break;
+        // }
     }
 
-    static TService GetOriginalService<TService>(ServiceDescriptor originalServiceDescriptor, IServiceProvider serviceProvider)
+    static TService? GetOriginalService<TService>(ServiceDescriptor originalServiceDescriptor, IServiceProvider serviceProvider)
         where TService : class, IOrganizationService
     {
         if (originalServiceDescriptor.ImplementationInstance != null)
@@ -55,6 +72,6 @@ public static class DataverseServiceClientTracerProviderBuilderExtensions
             return Activator.CreateInstance(originalServiceDescriptor.ImplementationType) as TService;
         }
 
-        throw new InvalidOperationException("Could not create original service client instance.");
+        return null;
     }
 }

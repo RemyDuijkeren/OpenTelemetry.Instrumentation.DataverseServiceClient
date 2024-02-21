@@ -25,7 +25,7 @@ public class AddDataverseServiceClientInstrumentationTests
         var orgService = serviceProvider.GetRequiredService<IOrganizationServiceAsync2>();
 
         orgService.Should().NotBe(serviceClientStub);
-        orgService.Should().BeOfType<OpenTelemetryServiceClientWrapper>();
+        orgService.Should().BeOfType<OpenTelemetryServiceClientDecorator>();
     }
 
     [Fact]
@@ -46,7 +46,7 @@ public class AddDataverseServiceClientInstrumentationTests
         var orgService = serviceProvider.GetRequiredService<IOrganizationServiceAsync>();
 
         orgService.Should().NotBe(serviceClientStub);
-        orgService.Should().BeOfType<OpenTelemetryServiceClientWrapper>();
+        orgService.Should().BeOfType<OpenTelemetryServiceClientDecorator>();
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public class AddDataverseServiceClientInstrumentationTests
         var orgService = serviceProvider.GetRequiredService<IOrganizationService>();
 
         orgService.Should().NotBe(serviceClientStub);
-        orgService.Should().BeOfType<OpenTelemetryServiceClientWrapper>();
+        orgService.Should().BeOfType<OpenTelemetryServiceClientDecorator>();
     }
 
     [Fact]
@@ -120,7 +120,7 @@ public class AddDataverseServiceClientInstrumentationTests
         var orgService = serviceProvider.GetRequiredService<IOrganizationServiceAsync2>();
 
         orgService.Should().NotBe(serviceClientStub);
-        orgService.Should().BeOfType<OpenTelemetryServiceClientWrapper>();
+        orgService.Should().BeOfType<OpenTelemetryServiceClientDecorator>();
     }
 
     [Fact]
@@ -141,7 +141,7 @@ public class AddDataverseServiceClientInstrumentationTests
         var orgService = serviceProvider.GetRequiredService<IOrganizationServiceAsync2>();
 
         orgService.Should().NotBe(serviceClientStub);
-        orgService.Should().BeOfType<OpenTelemetryServiceClientWrapper>();
+        orgService.Should().BeOfType<OpenTelemetryServiceClientDecorator>();
     }
 
     [Fact]
@@ -162,6 +162,6 @@ public class AddDataverseServiceClientInstrumentationTests
         var orgService = serviceProvider.GetRequiredService<IOrganizationService>();
 
         orgService.Should().NotBe(serviceClientStub);
-        orgService.Should().BeOfType<OpenTelemetryServiceClientWrapper>();
+        orgService.Should().BeOfType<OpenTelemetryServiceClientDecorator>();
     }
 }

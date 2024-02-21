@@ -320,6 +320,6 @@ public class OpenTelemetryServiceClientWrapper(IOrganizationService serviceClien
         return ServiceAsync2.UpdateAsync(entity, cancellationToken);
     }
 
-    public static implicit operator ServiceClient(OpenTelemetryServiceClientWrapper wrapper) =>
-        wrapper._service as ServiceClient ?? throw new InvalidOperationException("Wrapped client is not a ServiceClient.");
+    public static implicit operator ServiceClient(OpenTelemetryServiceClientDecorator decorator) =>
+        decorator._service as ServiceClient ?? throw new InvalidOperationException("Wrapped client is not a ServiceClient.");
 }
