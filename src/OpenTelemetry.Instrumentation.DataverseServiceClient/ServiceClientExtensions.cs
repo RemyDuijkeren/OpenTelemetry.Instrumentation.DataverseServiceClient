@@ -69,13 +69,14 @@ public static class ServiceClientExtensions
         service is ServiceClient client
             ? new Dictionary<string, object?>
             {
+                [ActivityTags.ServerAddress] = client.ConnectedOrgUriActual,
+                [ActivityTags.DbUrl] = client.ConnectedOrgUriActual,
                 [ActivityTags.DbSystem] = DataverseSystem,
                 [ActivityTags.DbName] = client.OrganizationDetail.UrlName,
-                [ActivityTags.DbConnectionString] = client.ConnectedOrgUriActual,
                 [ActivityTags.DbUser] = client.OAuthUserId,
                 [ActivityTags.DbDataverseOrganizationId] = client.ConnectedOrgId.ToString(),
                 [ActivityTags.DbDataverseOrganizationVersion] = client.ConnectedOrgVersion,
-                [ActivityTags.DbDataverseGeo] = client.OrganizationDetail.Geo,
+                [ActivityTags.DbDataverseGeo] = client.OrganizationDetail.Geo
             }
             : new Dictionary<string, object?>
             {
