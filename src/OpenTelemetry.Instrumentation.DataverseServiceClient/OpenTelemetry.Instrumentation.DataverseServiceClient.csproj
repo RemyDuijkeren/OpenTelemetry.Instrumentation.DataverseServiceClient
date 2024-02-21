@@ -2,12 +2,21 @@
 
   <PropertyGroup>
     <RootNamespace>RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient</RootNamespace>
-<!--    <TargetFrameworks>net8.0;net6.0;net462;net472;net48</TargetFrameworks>-->
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <TargetFrameworks>net6.0;net462;net472;net48</TargetFrameworks>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RestoreLockedMode Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</RestoreLockedMode>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+  
+  <PropertyGroup Label="LangFeatures">
+    <!--
+    .NET Framework supports C# 7.3. We explicitly set the LangVersion to 10.0 to enable the following compiler features:
+    - Nullable reference types (C# 8.0)
+    - File-scoped namespaces, Global Usings (C# 10)
+    -->
+    <LangVersion>10.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <PropertyGroup Label="PackageProperties">
@@ -30,10 +39,6 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <ContinuousIntegrationBuild Condition="'$(Deterministic)'=='true'">true</ContinuousIntegrationBuild>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net8.0'">
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
