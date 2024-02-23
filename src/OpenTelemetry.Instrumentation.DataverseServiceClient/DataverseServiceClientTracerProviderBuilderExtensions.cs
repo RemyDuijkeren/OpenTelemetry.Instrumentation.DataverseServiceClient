@@ -60,17 +60,13 @@ public static class DataverseServiceClientTracerProviderBuilderExtensions
         where TService : class, IOrganizationService
     {
         if (originalServiceDescriptor.ImplementationInstance != null)
-        {
             return (TService)originalServiceDescriptor.ImplementationInstance;
-        }
-        else if (originalServiceDescriptor.ImplementationFactory != null)
-        {
+
+        if (originalServiceDescriptor.ImplementationFactory != null)
             return (TService)originalServiceDescriptor.ImplementationFactory.Invoke(serviceProvider);
-        }
-        else if (originalServiceDescriptor.ImplementationType != null)
-        {
+
+        if (originalServiceDescriptor.ImplementationType != null)
             return Activator.CreateInstance(originalServiceDescriptor.ImplementationType) as TService;
-        }
 
         return null;
     }

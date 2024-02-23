@@ -7,7 +7,7 @@
     <RestoreLockedMode Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</RestoreLockedMode>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
-  
+
   <PropertyGroup Label="LangFeatures">
     <!--
     .NET Framework supports C# 7.3. We explicitly set the LangVersion to 10.0 to enable the following compiler features:
@@ -42,20 +42,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.17" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="All" />
-    <PackageReference Include="OpenTelemetry" Version="1.7.0" />
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.17"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+    <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="All"/>
+    <PackageReference Include="OpenTelemetry" Version="1.7.0"/>
   </ItemGroup>
 
   <ItemGroup>
     <!-- Add InternalsVisibleTo to src projects to enable testing internal methods https://www.meziantou.net/declaring-internalsvisibleto-in-the-csproj.htm -->
-    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+    <InternalsVisibleTo Include="$(AssemblyName).Tests"/>
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="../../docs/opentelemetry-icon-color.png" Pack="true" PackagePath="\" Visible="false" />
-    <None Include="../../README.md" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="../../docs/opentelemetry-icon-color.png" Pack="true" PackagePath="\" Visible="false"/>
+    <None Include="../../README.md" Pack="true" PackagePath="\" Visible="false"/>
   </ItemGroup>
 
 </Project>

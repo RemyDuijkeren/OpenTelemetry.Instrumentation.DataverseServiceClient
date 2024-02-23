@@ -94,6 +94,7 @@ Using [NSubstitue](https://nsubstitute.github.io/) (as our mocking framework) we
     // assert
     // We don't assert a stub!
 ```
+
 If possible try to not use stubs, but just call the real dependency, so that we know early when the dependency is
 changed.
 
