@@ -10,7 +10,7 @@ public class OpenTelemetryServiceClientDecorator_Retrieve
     [InlineData(null)] // Test entity is null
     [InlineData("")] // Test entity is empty
     [InlineData("Test")]
-    public void CallsUnderlyingServiceRetrieveMethod(string entityName)
+    public void CallsUnderlyingServiceRetrieveMethod(string? entityName)
     {
         // Arrange
         var mockedService = Substitute.For<IOrganizationService>();
@@ -19,7 +19,7 @@ public class OpenTelemetryServiceClientDecorator_Retrieve
         var columnSet = new ColumnSet();
 
         // Act
-        decorator.Retrieve(entityName, id, columnSet);
+        decorator.Retrieve(entityName!, id, columnSet);
 
         // Assert
         mockedService.Received(1).Retrieve(entityName, id, columnSet);

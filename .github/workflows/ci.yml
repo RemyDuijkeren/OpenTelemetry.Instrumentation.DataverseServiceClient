@@ -43,6 +43,8 @@ jobs:
 
       - name: 🚦 Test
         run: dotnet test -c Release -l trx --results-directory ./artifacts/ --no-build
+        env:
+          DATAVERSE_CONNECTION_OPTIONS: ${{secrets.DATAVERSE_CONNECTION_OPTIONS}}
 
       - name: 📋 Test reporter
         uses: dorny/test-reporter@v1
