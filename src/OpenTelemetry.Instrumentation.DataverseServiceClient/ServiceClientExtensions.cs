@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.PowerPlatform.Dataverse.Client;
 using Microsoft.Xrm.Sdk;
@@ -7,9 +8,10 @@ namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient;
 
 public static class ServiceClientExtensions
 {
-    // Microsoft.PowerPlatform.Dataverse.Client ?
-    public static readonly ActivitySource DataverseTracer = new("OpenTelemetry.Instrumentation.DataverseServiceClient", "1.0.0");
     const string DataverseSystem = "dataverse";
+
+    public static readonly ActivitySource DataverseTracer =
+        new("OpenTelemetry.Instrumentation.DataverseServiceClient", Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0");
 
     /// <summary>Creates and starts a new <see cref="Activity"/> object if there is any listener to the Activity events, returns null otherwise.</summary>
     /// <param name="service">The <see cref="IOrganizationService"/> to start the Activity for</param>
@@ -35,14 +37,14 @@ public static class ServiceClientExtensions
     /// <param name="statement">The optional statement associated with the activity.</param>
     /// <param name="operation">The optional name of the operation associated with the activity. If not specified, the caller's member name is used.</param>
     /// <returns>An <see cref="Activity"/> instance representing the started activity. Returns null if the activity could not be started.</returns>
-    public static Activity? StartDataverseActivity(this IOrganizationService service, Entity entity, string? statement = null, [CallerMemberName] string? operation = null)
+    public static Activity? StartDataverseActivity(this IOrganizationService service, Entity? entity, string? statement = null, [CallerMemberName] string? operation = null)
     {
-        Activity? activity = DataverseTracer.StartActivity(name: $"{operation} {entity.LogicalName}",
+        Activity? activity = DataverseTracer.StartActivity(name: $"{operation} {entity?.LogicalName}",
             kind: ActivityKind.Client, tags: CreateInitialTags(service));
 
         activity?.SetTag(ActivityTags.DbOperation, operation);
-        activity?.SetTag(ActivityTags.DbSqlTable, entity.LogicalName);
-        activity?.SetTag(ActivityTags.DbStatement, statement ?? $"EntityId: {entity.Id}");
+        activity?.SetTag(ActivityTags.DbSqlTable, entity?.LogicalName);
+        activity?.SetTag(ActivityTags.DbStatement, statement ?? $"EntityId: {entity?.Id}");
 
         return activity;
     }
@@ -53,14 +55,14 @@ public static class ServiceClientExtensions
     /// <param name="statement">The statement for the activity. Default is null.</param>
     /// <param name="operation">The name of the calling method. This parameter is automatically populated by the compiler. Default is null.</param>
     /// <returns>An <see cref="Activity"/> instance representing the started activity. Returns null if the activity could not be started.</returns>
-    public static Activity? StartDataverseActivity(this IOrganizationService service, EntityReference entityReference, string? statement = null, [CallerMemberName] string? operation = null)
+    public static Activity? StartDataverseActivity(this IOrganizationService service, EntityReference? entityReference, string? statement = null, [CallerMemberName] string? operation = null)
     {
-        Activity? activity = DataverseTracer.StartActivity(name: $"{operation} {entityReference.LogicalName}",
+        Activity? activity = DataverseTracer.StartActivity(name: $"{operation} {entityReference?.LogicalName}",
             kind: ActivityKind.Client, tags: CreateInitialTags(service));
 
         activity?.SetTag(ActivityTags.DbOperation, operation);
-        activity?.SetTag(ActivityTags.DbSqlTable, entityReference.LogicalName);
-        activity?.SetTag(ActivityTags.DbStatement, statement ?? $"EntityId: {entityReference.Id}");
+        activity?.SetTag(ActivityTags.DbSqlTable, entityReference?.LogicalName);
+        activity?.SetTag(ActivityTags.DbStatement, statement ?? $"EntityId: {entityReference?.Id}");
 
         return activity;
     }

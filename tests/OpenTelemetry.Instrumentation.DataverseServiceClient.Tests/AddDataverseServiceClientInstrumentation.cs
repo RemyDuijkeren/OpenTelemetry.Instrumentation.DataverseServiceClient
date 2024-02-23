@@ -5,10 +5,42 @@ using OpenTelemetry.Trace;
 
 namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
 
-public class AddDataverseServiceClientInstrumentationTests
+public class AddDataverseServiceClientInstrumentation
 {
     [Fact]
-    public void ReturnsDecorator_GivenOrganizationServiceAsync2Registration()
+    public void AddDataverseActivitySourceToTracerProviderBuilder()
+    {
+        // Arrange
+        var tracerBuilder = Substitute.For<TracerProviderBuilder>();
+
+        // Act
+        tracerBuilder.AddDataverseServiceClientInstrumentation();
+
+        // Assert
+        tracerBuilder.Received(1).AddSource(Arg.Is<string>(x =>  x == DataverseServiceClient.ServiceClientExtensions.DataverseTracer.Name));
+    }
+
+    [Fact]
+    public void AddDataverseTracerToTracerProvider()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        // Act
+        services.AddOpenTelemetry()
+                .WithTracing(builder => builder
+                    .AddDataverseServiceClientInstrumentation());
+
+        // Assert
+        var serviceProvider = services.BuildServiceProvider();
+        var tracerProvider = serviceProvider.GetRequiredService<TracerProvider>();
+        var dataverseTracer = tracerProvider.GetTracer(DataverseServiceClient.ServiceClientExtensions.DataverseTracer.Name);
+
+        dataverseTracer.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void ReturnDecorator_When_OrganizationServiceAsync2Registration()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -29,7 +61,7 @@ public class AddDataverseServiceClientInstrumentationTests
     }
 
     [Fact]
-    public void ReturnsDecorator_GivenOrganizationServiceAsyncRegistration()
+    public void ReturnDecorator_When_OrganizationServiceAsyncRegistration()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -50,7 +82,7 @@ public class AddDataverseServiceClientInstrumentationTests
     }
 
     [Fact]
-    public void ReturnsDecorator_GivenOrganizationServiceRegistration()
+    public void ReturnDecorator_When_OrganizationServiceRegistration()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -71,39 +103,7 @@ public class AddDataverseServiceClientInstrumentationTests
     }
 
     [Fact]
-    public void AddAsSourceOnTracerProviderBuilder_GivenDataverseTActivitySource()
-    {
-        // Arrange
-        var tracerBuilder = Substitute.For<TracerProviderBuilder>();
-
-        // Act
-        tracerBuilder.AddDataverseServiceClientInstrumentation();
-
-        // Assert
-        tracerBuilder.Received(1).AddSource(Arg.Is<string>(x =>  x == ServiceClientExtensions.DataverseTracer.Name));
-    }
-
-    [Fact]
-    public void IsTracerInTracerProvider_GivenDataverseActivitySource()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-
-        // Act
-        services.AddOpenTelemetry()
-                .WithTracing(builder => builder
-                    .AddDataverseServiceClientInstrumentation());
-
-        // Assert
-        var serviceProvider = services.BuildServiceProvider();
-        var tracerProvider = serviceProvider.GetRequiredService<TracerProvider>();
-        var dataverseTracer = tracerProvider.GetTracer(ServiceClientExtensions.DataverseTracer.Name);
-
-        dataverseTracer.Should().NotBeNull();
-    }
-
-    [Fact]
-    public void ReturnsDecorator_GivenServiceRegisteredAsInstance()
+    public void ReturnDecorator_When_ServiceRegisteredAsInstance()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -124,7 +124,7 @@ public class AddDataverseServiceClientInstrumentationTests
     }
 
     [Fact]
-    public void ReturnsDecorator_GivenServiceRegisteredUsingFactoryMethod()
+    public void ReturnDecorator_When_ServiceRegisteredUsingFactoryMethod()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -145,7 +145,7 @@ public class AddDataverseServiceClientInstrumentationTests
     }
 
     [Fact]
-    public void ReturnsDecorator_GivenServiceRegisteredAsType()
+    public void ReturnDecorator_When_ServiceRegisteredAsType()
     {
         // Arrange
         var services = new ServiceCollection();

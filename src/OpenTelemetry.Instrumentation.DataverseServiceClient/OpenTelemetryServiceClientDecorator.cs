@@ -29,15 +29,14 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Guid Create(Entity entity)
     {
-        if (entity is null) throw new ArgumentNullException(nameof(entity));
         using Activity? activity = Service.StartDataverseActivity(entity);
-        return Service.Create(entity);
+        var id = Service.Create(entity);
+        return id;
     }
 
     /// <inheritdoc />
     public Entity Retrieve(string entityName, Guid id, ColumnSet columnSet)
     {
-        if (entityName is null) throw new ArgumentNullException(nameof(entityName));
         using Activity? activity = Service.StartDataverseActivity(new EntityReference(entityName, id));
         return Service.Retrieve(entityName, id, columnSet);
     }
@@ -45,7 +44,6 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public void Update(Entity entity)
     {
-        if (entity is null) throw new ArgumentNullException(nameof(entity));
         using Activity? activity = Service.StartDataverseActivity(entity);
         Service.Update(entity);
     }
@@ -53,7 +51,6 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public void Delete(string entityName, Guid id)
     {
-        if (entityName is null) throw new ArgumentNullException(nameof(entityName));
         using Activity? activity = Service.StartDataverseActivity(new EntityReference(entityName, id));
         Service.Delete(entityName, id);
     }
@@ -61,7 +58,12 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public OrganizationResponse Execute(OrganizationRequest request)
     {
-        if (request is null) throw new ArgumentNullException(nameof(request));
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (request is null)
+        {
+            using Activity? act = Service.StartDataverseActivity();
+            return Service.Execute(request);
+        }
 
         string? entityName = request.Parameters.TryGetValue("LogicalName", out var logicalName) ? logicalName?.ToString() : null;
         if (entityName is null)
@@ -326,6 +328,6 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
         return ServiceAsync2.UpdateAsync(entity, cancellationToken);
     }
 
-    public static implicit operator ServiceClient(OpenTelemetryServiceClientDecorator decorator) =>
-        decorator._service as ServiceClient ?? throw new InvalidOperationException("Wrapped client is not a ServiceClient.");
+    public static explicit operator ServiceClient(OpenTelemetryServiceClientDecorator decorator) =>
+        decorator._service as ServiceClient ?? throw new InvalidOperationException("Decorated client is not a ServiceClient.");
 }

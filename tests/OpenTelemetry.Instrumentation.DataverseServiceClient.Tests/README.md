@@ -8,38 +8,74 @@ We use [AutoBogus](https://github.com/nickdodd79/AutoBogus), which uses [Bogus](
 to generate fake data. To use AutoBogus, we only need to reference [AutoBogus.NSubstitute](https://www.nuget.org/packages/AutoBogus.NSubstitute),
 the NSubtitute binding for AutoBogus.
 
-## Guidelines
+## Test structure
 
-### Test naming (Given-When-Then)
+### Test naming
 
-Write the class as the SUT (system under test) or the action/unit for the behavior (to express the _When_) without
-Tests at the end.
+We follow the Should_ExpectedBehavior_When_StateUnderTest pattern for naming our tests. This pattern is inspired by
+the [BDD](https://en.wikipedia.org/wiki/Behavior-driven_development) (Behavior Driven Development) style of writing.
 
-    [ClassName/Action/Unit/Behavior/When](_Given[Main PreCondition(s)])
+This will result in a test methods name like below, where we prefer to remove the _Should_ prefix, because it's redundant:
 
-The methods have the pattern (to express the _Should_):
+    (Should_)[ExpectedBehavior]_When_[PreCondition(s)]
 
-* **Returns**[ExpectedOutput]**_Given**[PreCondition(s)]
-* **Throw**[ExpectedException]**_Given**[PreCondition(s)]
-* **Publish**[ExpectedEvent]**_Given**[PreCondition(s)]
-* **Send**[ExpectedCommand]**_Given**[PreCondition(s)]
+    examples:
+    ShouldThrowException_When_AgeLessThan18 // not prefered
+    ThrowException_When_AgeLessThan18
+    ReturnContact_When_ContactIdExists
+    ThrowArgumentException_When_ContactIdIsNullOrWhitespace
+    PublishContactCreatedEvent_When_ContactIsCreated
+    SendCreateContactCommand_When_ContactIsCreated
+    SumTwoNumbers_When_NumbersArePositive
+    SumTwoNumbers // omit the When_ part if there are no preconditions or only one precondition
 
-This looks like:
+For class names we use the below naming convention. Here the class name is the SUT (System-Under-Test), often the
+class under test. Optional the method name is added to the class name to group the tests for the method together.
+The group even more we can add the main preconditions to the class name, instead of the method name.
+Don`t add the Suffix Test to the class name.
 
-    public class FindContact : BaseTest
+    [TestedClassName](_[TestedMethodName])(_When_[Main PreCondition(s)])
+
+    examples:
+    OpenTelemetryServiceClientDecorator
+    OpenTelemetryServiceClientDecorator_Create
+    OpenTelemetryServiceClientDecorator_Create_WhenServiceClientIsNull
+
+Optional we can group test classes in a folder with the same name as the class under test. For folder names we use the
+class name under test with the Suffix Test.
+
+    [TestedClassName]Tests
+
+    examples:
+    OpenTelemetryServiceClientDecoratorTests
+
+### Arrange, Act, Assert (AAA)
+
+We follow the Arrange, Act, Assert (AAA) pattern for structuring our tests. This pattern is inspired by the
+[AAA](https://en.wikipedia.org/wiki/Arrange-Act-Assert) (Arrange, Act, Assert) pattern.
+
+    Arrange: setup the preconditions for the test
+    Act: execute the method under test
+    Assert: verify the expected outcome
+
+```c#
+    [Fact]
+    public void ReturnsContact_WhenContactIdExists()
     {
-        [Fact]
-        public void ReturnsContact_GivenContactIdExists()
-        {
-            // ...
-        }
+        // arrange
+        var contactId = Guid.NewGuid();
+        var contact = new Contact { Id = contactId };
+        var contactRepository = Substitute.For<IContactRepository>();
+        contactRepository.GetById(contactId).Returns(contact);
+        var sut = new ContactService(contactRepository);
 
-        [Fact]
-        public void ThrowArgumentException_GivenContactIdIsNullOrWhitespace()
-        {
-            // ...
-        }
+        // act
+        var result = sut.GetContact(contactId);
+
+        // assert
+        Assert.Equal(contact, result);
     }
+```
 
 ### Stub vs Mock
 
@@ -77,9 +113,14 @@ that our command happened, because this is the output of our System Under Test (
 
 White paper testing with mocks: https://www.jamesshore.com/v2/projects/testing-without-mocks/testing-without-mocks
 
-### Test the outgoing behaviour of your SUT (system under test)
+### Test behaviour, not implementation
 
-Don't test all the details or in-between steps. Test the expected outcome to prevent brittle tests.
+We test the behaviour of the System Under Test (SUT), not the implementation. We don't care how the SUT does it, only
+that it does it.
+
+So we don't test private methods, because they are an implementation detail. We test the public methods, because they
+are the interface of the SUT. Don't test all the details or in-between steps. Test the expected outcome to prevent
+brittle tests.
 
 For more info see:
 https://enterprisecraftsmanship.com/posts/stubs-vs-mocks/
