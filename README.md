@@ -24,18 +24,17 @@ dotnet add package RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceC
 
 ### Step 2: Enable Dataverse ServiceClient Instrumentation at application startup
 
-Dataverse ServiceClient instrumentation must be enabled at application startup. This is typically done in the
-`ConfigureServices` of your `Startup` class. Both examples below enables OpenTelemetry by calling `AddOpenTelemetry()`
-on `IServiceCollection`.
-This extension method requires adding the package [`OpenTelemetry.Extensions.Hosting`](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Extensions.Hosting/README.md)
-to the application. This ensures instrumentations are disposed when the host is shutdown.
+Dataverse ServiceClient instrumentation must be enabled at application startup, when setting up the host for
+OpenTelemetry. See the package [`OpenTelemetry.Extensions.Hosting`](https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Extensions.Hosting/README.md) for more info how to add OpenTelemetry to the
+application.
 
-#### Traces
+The following example demonstrates adding Dataverse ServiceClient instrumentation within the extension method
+`WithTracing()` on the `OpenTelemetryBuilder`. The extension method `AddDataverseServiceClientInstrumentation()`
+registers the instrumentation to the `TracerProvider` and tries to replace any registered `IOrganizationService`,
+`IOrganizationServiceAsync` or `IOrganizationServiceAsync2` by wrapping the service into
+`OpenTelemetryServiceClientDecorator` that will do actual tracing.
 
-The following example demonstrates adding Dataverse ServiceClient instrumentation with the extension method
-`WithTracing()` on `OpenTelemetryBuilder`. then extension method `AddDataverseServiceClientInstrumentation()` on
-`TracerProviderBuilder` to the application. This example also sets up the Console Exporter, which requires adding the
-package [`OpenTelemetry.Exporter.Console`](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/src/OpenTelemetry.Exporter.Console)
+This example also sets up the Console Exporter, which requires adding the package [`OpenTelemetry.Exporter.Console`](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/src/OpenTelemetry.Exporter.Console)
 to the application.
 
 ```csharp
@@ -50,6 +49,21 @@ public void ConfigureServices(IServiceCollection services)
             .AddConsoleExporter());
 }
 ```
+
+Optional create the `OpenTelemetryServiceClientDecorator` manually by passing it a `ServiceClient` like:
+
+```csharp
+using Microsoft.PowerPlatform.Dataverse.Client;
+using OpenTelemetry.Instrumentation.DataverseServiceClient;
+
+var serviceClient = new ServiceClient(new ConnectionOptions { /* your config */ } );
+var decoratedServiceClient = new OpenTelemetryServiceClientDecorator(serviceClient);
+
+// Use the decoratedServiceClient as you would use the serviceClient
+var response = decoratedServiceClient.Execute(new WhoAmIRequest());
+```
+
+## Traces
 
 Following list of attributes are added by default on activity. See [db-spans](https://github.com/open-telemetry/semantic-conventions/blob/v1.23.0/docs/database/database-spans.md)
 for more details about each individual attribute:
