@@ -11,14 +11,30 @@ public class OpenTelemetryServiceClientDecorator_Operator
         Skip.IfNot(ServiceClientHelper.EnvVarConnectionOptionsExists);
 
         // Arrange
-        var serviceClient = ServiceClientHelper.CreateFromEnvVar();
-        var decorator = new OpenTelemetryServiceClientDecorator(serviceClient);
+        var service = ServiceClientHelper.CreateFromEnvVar();
+        var decorator = new OpenTelemetryServiceClientDecorator(service);
 
         // Act
         var convertedServiceClient = (ServiceClient)decorator;
 
         // Assert
-        convertedServiceClient.Should().BeEquivalentTo(serviceClient);
+        convertedServiceClient.Should().Be(service);
+    }
+
+    [SkippableFact]
+    public void ReturnServiceClientFromDecorator_When_CallingInternalServiceClient()
+    {
+        Skip.IfNot(ServiceClientHelper.EnvVarConnectionOptionsExists);
+
+        // Arrange
+        var service = ServiceClientHelper.CreateFromEnvVar();
+        var decorator = new OpenTelemetryServiceClientDecorator(service);
+
+        // Act
+        var convertedServiceClient = decorator.InternalServiceClient;
+
+        // Assert
+        convertedServiceClient.Should().Be(service);
     }
 
     [Fact]
@@ -29,9 +45,9 @@ public class OpenTelemetryServiceClientDecorator_Operator
         var decorator = new OpenTelemetryServiceClientDecorator(incompatibleService);
 
         // Act
-        Action act = () => { var serviceClient = (ServiceClient)decorator; };
+        Action act = () => { var service = (ServiceClient)decorator; };
 
         // Assert
-        act.Should().Throw<InvalidOperationException>().WithMessage("Decorated client is not a ServiceClient.");
+        act.Should().Throw<InvalidOperationException>().WithMessage("Decorated client is not a ServiceClient. Cannot cast to ServiceClient!");
     }
 }

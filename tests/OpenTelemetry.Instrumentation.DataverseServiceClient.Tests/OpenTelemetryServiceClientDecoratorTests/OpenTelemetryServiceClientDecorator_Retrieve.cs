@@ -10,11 +10,11 @@ public class OpenTelemetryServiceClientDecorator_Retrieve
     [InlineData(null)] // Test entity is null
     [InlineData("")] // Test entity is empty
     [InlineData("Test")]
-    public void CallsUnderlyingServiceRetrieveMethod(string? entityName)
+    public void CallsUnderlyingService(string? entityName)
     {
         // Arrange
-        var mockedService = Substitute.For<IOrganizationService>();
-        var decorator = new OpenTelemetryServiceClientDecorator(mockedService);
+        var mockService = Substitute.For<IOrganizationService>();
+        var decorator = new OpenTelemetryServiceClientDecorator(mockService);
         var id = Guid.NewGuid();
         var columnSet = new ColumnSet();
 
@@ -22,17 +22,17 @@ public class OpenTelemetryServiceClientDecorator_Retrieve
         decorator.Retrieve(entityName!, id, columnSet);
 
         // Assert
-        mockedService.Received(1).Retrieve(entityName, id, columnSet);
+        mockService.Received(1).Retrieve(entityName, id, columnSet);
     }
 
     [SkippableFact]
-    public void ThrowFaultException_When_EntityNameIsEmpty_WithoutMocking1()
+    public void ThrowUnderlyingFaultException_When_EntityNameIsEmpty_WithoutMocking()
     {
         Skip.IfNot(ServiceClientHelper.EnvVarConnectionOptionsExists);
 
         // Arrange
-        var serviceClient = ServiceClientHelper.CreateFromEnvVar();
-        var decorator = new OpenTelemetryServiceClientDecorator(serviceClient);
+        var service = ServiceClientHelper.CreateFromEnvVar();
+        var decorator = new OpenTelemetryServiceClientDecorator(service);
         var id = Guid.NewGuid();
         var columnSet = new ColumnSet();
         string entityName = "";
@@ -45,13 +45,13 @@ public class OpenTelemetryServiceClientDecorator_Retrieve
     }
 
     [SkippableFact]
-    public void ThrowNullReferenceException_When_EntityNameIsNull_WithoutMocking()
+    public void ThrowUnderlyingNullReferenceException_When_EntityNameIsNull_WithoutMocking()
     {
         Skip.IfNot(ServiceClientHelper.EnvVarConnectionOptionsExists);
 
         // Arrange
-        var serviceClient = ServiceClientHelper.CreateFromEnvVar();
-        var decorator = new OpenTelemetryServiceClientDecorator(serviceClient);
+        var service = ServiceClientHelper.CreateFromEnvVar();
+        var decorator = new OpenTelemetryServiceClientDecorator(service);
         var id = Guid.NewGuid();
         var columnSet = new ColumnSet();
         string entityName = null!;

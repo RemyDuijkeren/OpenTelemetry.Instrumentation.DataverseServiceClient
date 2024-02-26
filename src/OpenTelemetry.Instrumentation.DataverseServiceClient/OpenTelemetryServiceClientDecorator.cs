@@ -9,6 +9,13 @@ namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient;
 public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
 {
     readonly IOrganizationService _service;
+    internal ServiceClient? InternalServiceClient => _service as ServiceClient;
+    IOrganizationService Service => _service;
+    IOrganizationServiceAsync ServiceAsync => _service as IOrganizationServiceAsync ??
+                                              throw new InvalidOperationException($"Wrapped service client is not a {typeof(IOrganizationServiceAsync)}!");
+    IOrganizationServiceAsync2 ServiceAsync2 => _service as IOrganizationServiceAsync2 ??
+                                                throw new InvalidOperationException($"Wrapped service client is not a {typeof(IOrganizationServiceAsync2)}!");
+    Guid ConnectedOrgId => _service is ServiceClient client ? client.ConnectedOrgId : Guid.Empty;
 
     /// <summary>Decorate <see cref="IOrganizationServiceAsync2" /> interface with OpenTelemetry instrumentation.</summary>
     public OpenTelemetryServiceClientDecorator(IOrganizationService? serviceClient)
@@ -16,28 +23,21 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
         _service = serviceClient ?? throw new ArgumentNullException(nameof(serviceClient));
     }
 
-    IOrganizationService Service => _service;
-
-    IOrganizationServiceAsync ServiceAsync => _service as IOrganizationServiceAsync ??
-                                              throw new InvalidOperationException($"Wrapped service client is not a {typeof(IOrganizationServiceAsync)}!");
-
-    IOrganizationServiceAsync2 ServiceAsync2 => _service as IOrganizationServiceAsync2 ??
-                                                throw new InvalidOperationException($"Wrapped service client is not a {typeof(IOrganizationServiceAsync2)}!");
-
-    Guid ConnectedOrgId => _service is ServiceClient client ? client.ConnectedOrgId : Guid.Empty;
-
     /// <inheritdoc />
     public Guid Create(Entity entity)
     {
         using Activity? activity = Service.StartDataverseActivity(entity);
         var id = Service.Create(entity);
+        activity?.SetTag(ActivityTags.DataverseEntityId, id.ToString());
+        // string insertSql = $"INSERT INTO {entity.LogicalName} ({string.Join(", ", entity.Attributes.Keys)}) VALUES ({string.Join(", ", entity.Attributes.Values)})";
+        // activity?.SetTag(ActivityTags.DbStatement, insertSql);
         return id;
     }
 
     /// <inheritdoc />
     public Entity Retrieve(string entityName, Guid id, ColumnSet columnSet)
     {
-        using Activity? activity = Service.StartDataverseActivity(new EntityReference(entityName, id));
+        using Activity? activity = Service.StartDataverseActivity(entityName, id);
         return Service.Retrieve(entityName, id, columnSet);
     }
 
@@ -51,7 +51,7 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public void Delete(string entityName, Guid id)
     {
-        using Activity? activity = Service.StartDataverseActivity(new EntityReference(entityName, id));
+        using Activity? activity = Service.StartDataverseActivity(entityName, id);
         Service.Delete(entityName, id);
     }
 
@@ -86,22 +86,20 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public void Associate(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities)
     {
-        using Activity? activity = Service.StartDataverseActivity(new EntityReference(entityName, entityId));
+        using Activity? activity = Service.StartDataverseActivity(entityName, entityId);
         Service.Associate(entityName, entityId, relationship, relatedEntities);
     }
 
     /// <inheritdoc />
     public void Disassociate(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities)
     {
-        using Activity? activity = Service.StartDataverseActivity(new EntityReference(entityName, entityId));
+        using Activity? activity = Service.StartDataverseActivity(entityName, entityId);
         Service.Disassociate(entityName, entityId, relationship, relatedEntities);
     }
 
     /// <inheritdoc />
     public EntityCollection RetrieveMultiple(QueryBase query)
     {
-        if (query is null) throw new ArgumentNullException(nameof(query));
-
         switch (query)
         {
             case QueryExpression queryExpression:
@@ -129,7 +127,6 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Task<Guid> CreateAsync(Entity entity)
     {
-        if (entity is null) throw new ArgumentNullException(nameof(entity));
         using Activity? activity = ServiceAsync.StartDataverseActivity(entity);
         return ServiceAsync.CreateAsync(entity);
     }
@@ -137,15 +134,13 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Task<Entity> RetrieveAsync(string entityName, Guid id, ColumnSet columnSet)
     {
-        if (entityName is null) throw new ArgumentNullException(nameof(entityName));
-        using Activity? activity = ServiceAsync.StartDataverseActivity(new EntityReference(entityName, id));
+        using Activity? activity = ServiceAsync.StartDataverseActivity(entityName, id);
         return ServiceAsync.RetrieveAsync(entityName, id, columnSet);
     }
 
     /// <inheritdoc />
     public Task UpdateAsync(Entity entity)
     {
-        if (entity is null) throw new ArgumentNullException(nameof(entity));
         using Activity? activity = ServiceAsync.StartDataverseActivity(entity);
         return ServiceAsync.UpdateAsync(entity);
     }
@@ -153,15 +148,19 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Task DeleteAsync(string entityName, Guid id)
     {
-        if (entityName is null) throw new ArgumentNullException(nameof(entityName));
-        using Activity? activity = ServiceAsync.StartDataverseActivity(new EntityReference(entityName, id));
+        using Activity? activity = ServiceAsync.StartDataverseActivity(entityName, id);
         return ServiceAsync.DeleteAsync(entityName, id);
     }
 
     /// <inheritdoc />
     public Task<OrganizationResponse> ExecuteAsync(OrganizationRequest request)
     {
-        if (request is null) throw new ArgumentNullException(nameof(request));
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (request is null)
+        {
+            using Activity? act = Service.StartDataverseActivity();
+            return ServiceAsync.ExecuteAsync(request);
+        }
 
         string? entityName = request.Parameters.TryGetValue("LogicalName", out var logicalName) ? logicalName?.ToString() : null;
         if (entityName is null)
@@ -184,22 +183,20 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Task AssociateAsync(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities)
     {
-        using Activity? activity = ServiceAsync.StartDataverseActivity(new EntityReference(entityName, entityId));
+        using Activity? activity = ServiceAsync.StartDataverseActivity(entityName, entityId);
         return ServiceAsync.AssociateAsync(entityName, entityId, relationship, relatedEntities);
     }
 
     /// <inheritdoc />
     public Task DisassociateAsync(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities)
     {
-        using Activity? activity = ServiceAsync.StartDataverseActivity(new EntityReference(entityName, entityId));
+        using Activity? activity = ServiceAsync.StartDataverseActivity(entityName, entityId);
         return ServiceAsync.DisassociateAsync(entityName, entityId, relationship, relatedEntities);
     }
 
     /// <inheritdoc />
     public Task<EntityCollection> RetrieveMultipleAsync(QueryBase query)
     {
-        if (query is null) throw new ArgumentNullException(nameof(query));
-
         switch (query)
         {
             case QueryExpression queryExpression:
@@ -226,14 +223,13 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     public Task AssociateAsync(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities,
         CancellationToken cancellationToken)
     {
-        using Activity? activity = ServiceAsync2.StartDataverseActivity(new EntityReference(entityName, entityId));
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(entityName, entityId);
         return ServiceAsync2.AssociateAsync(entityName, entityId, relationship, relatedEntities, cancellationToken);
     }
 
     /// <inheritdoc />
     public Task<Guid> CreateAsync(Entity entity, CancellationToken cancellationToken)
     {
-        if (entity is null) throw new ArgumentNullException(nameof(entity));
         using Activity? activity = ServiceAsync2.StartDataverseActivity(entity);
         return ServiceAsync2.CreateAsync(entity, cancellationToken);
     }
@@ -241,7 +237,6 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Task<Entity> CreateAndReturnAsync(Entity entity, CancellationToken cancellationToken)
     {
-        if (entity is null) throw new ArgumentNullException(nameof(entity));
         using Activity? activity = ServiceAsync2.StartDataverseActivity(entity);
         return ServiceAsync2.CreateAndReturnAsync(entity, cancellationToken);
     }
@@ -249,8 +244,7 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Task DeleteAsync(string entityName, Guid id, CancellationToken cancellationToken)
     {
-        if (entityName is null) throw new ArgumentNullException(nameof(entityName));
-        using Activity? activity = ServiceAsync2.StartDataverseActivity(new EntityReference(entityName, id));
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(entityName, id);
         return ServiceAsync2.DeleteAsync(entityName, id, cancellationToken);
     }
 
@@ -258,14 +252,19 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     public Task DisassociateAsync(string entityName, Guid entityId, Relationship relationship, EntityReferenceCollection relatedEntities,
         CancellationToken cancellationToken)
     {
-        using Activity? activity = ServiceAsync2.StartDataverseActivity(new EntityReference(entityName, entityId));
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(entityName, entityId);
         return ServiceAsync2.DisassociateAsync(entityName, entityId, relationship, relatedEntities, cancellationToken);
     }
 
     /// <inheritdoc />
     public Task<OrganizationResponse> ExecuteAsync(OrganizationRequest request, CancellationToken cancellationToken)
     {
-        if (request is null) throw new ArgumentNullException(nameof(request));
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (request is null)
+        {
+            using Activity? act = Service.StartDataverseActivity();
+            return ServiceAsync.ExecuteAsync(request);
+        }
 
         string? entityName = request.Parameters.TryGetValue("LogicalName", out var logicalName) ? logicalName?.ToString() : null;
         if (entityName is null)
@@ -288,16 +287,13 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Task<Entity> RetrieveAsync(string entityName, Guid id, ColumnSet columnSet, CancellationToken cancellationToken)
     {
-        if (entityName is null) throw new ArgumentNullException(nameof(entityName));
-        using Activity? activity = ServiceAsync2.StartDataverseActivity(new EntityReference(entityName, id));
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(entityName, id);
         return ServiceAsync2.RetrieveAsync(entityName, id, columnSet, cancellationToken);
     }
 
     /// <inheritdoc />
     public Task<EntityCollection> RetrieveMultipleAsync(QueryBase query, CancellationToken cancellationToken)
     {
-        if (query is null) throw new ArgumentNullException(nameof(query));
-
         switch (query)
         {
             case QueryExpression queryExpression:
@@ -323,11 +319,10 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Task UpdateAsync(Entity entity, CancellationToken cancellationToken)
     {
-        if (entity is null) throw new ArgumentNullException(nameof(entity));
         using Activity? activity = ServiceAsync2.StartDataverseActivity(entity);
         return ServiceAsync2.UpdateAsync(entity, cancellationToken);
     }
 
     public static explicit operator ServiceClient(OpenTelemetryServiceClientDecorator decorator) =>
-        decorator._service as ServiceClient ?? throw new InvalidOperationException("Decorated client is not a ServiceClient.");
+        decorator._service as ServiceClient ?? throw new InvalidOperationException("Decorated client is not a ServiceClient. Cannot cast to ServiceClient!");
 }

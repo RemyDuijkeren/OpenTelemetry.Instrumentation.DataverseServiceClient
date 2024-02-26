@@ -10,14 +10,25 @@ the NSubtitute binding for AutoBogus.
 
 ## Test structure
 
+Try the use the general test guidelines from [Microsoft](https://docs.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices).
+
+We test the behaviour of the System Under Test (SUT), not the implementation. We don't care how the SUT does it, only
+that it does it.
+
+So we don't test private methods, because they are an implementation detail. We test the public methods, because they
+are the interface of the SUT. Don't test all the details or in-between steps. Test the expected outcome to prevent
+brittle tests.
+
 ### Test naming
 
-We follow the Should_ExpectedBehavior_When_StateUnderTest pattern for naming our tests. This pattern is inspired by
+We follow the _Should_ExpectedBehavior_When_StateUnderTest_ pattern for naming our tests. This pattern is inspired by
 the [BDD](https://en.wikipedia.org/wiki/Behavior-driven_development) (Behavior Driven Development) style of writing.
 
-This will result in a test methods name like below, where we prefer to remove the _Should_ prefix, because it's redundant:
+We remove the _Should_ prefix, because it's redundant. You can include the method name under test at the
+beginning at the method name to group the tests (try not to because when the method changes, you need to change the
+tests). The test method name should be a sentence that reads. This will result in a test methods name like below:.
 
-    (Should_)[ExpectedBehavior]_When_[PreCondition(s)]
+    (MethodNameUnderTest_)[ExpectedBehavior]_When_[PreCondition(s)]
 
     examples:
     ShouldThrowException_When_AgeLessThan18 // not prefered
@@ -30,21 +41,21 @@ This will result in a test methods name like below, where we prefer to remove th
     SumTwoNumbers // omit the When_ part if there are no preconditions or only one precondition
 
 For class names we use the below naming convention. Here the class name is the SUT (System-Under-Test), often the
-class under test. Optional the method name is added to the class name to group the tests for the method together.
-The group even more we can add the main preconditions to the class name, instead of the method name.
-Don`t add the Suffix Test to the class name.
+class under test (but it can differ if we want to test an explicit behavior like an extension method). The method name
+under test can be added to the class name, if the number of tests methods is to many. The group even more we can add the
+main preconditions to the class name, instead of the method name. Don`t add the Suffix _Test_ to the class name.
 
-    [TestedClassName](_[TestedMethodName])(_When_[Main PreCondition(s)])
+    [ClassNameUnderTest](_[MethodNameUnderTest])(_When_[Main PreCondition(s)])
 
     examples:
     OpenTelemetryServiceClientDecorator
     OpenTelemetryServiceClientDecorator_Create
-    OpenTelemetryServiceClientDecorator_Create_WhenServiceClientIsNull
+    OpenTelemetryServiceClientDecorator_Create_When_ServiceClientIsNull
 
 Optional we can group test classes in a folder with the same name as the class under test. For folder names we use the
-class name under test with the Suffix Test.
+class name under test with the Suffix _Test_.
 
-    [TestedClassName]Tests
+    [ClassNameUnderTest]Tests
 
     examples:
     OpenTelemetryServiceClientDecoratorTests
@@ -86,8 +97,8 @@ Using [NSubstitue](https://nsubstitute.github.io/) (as our mocking framework) we
 
 ```c#
     // arrange
-    var someThingStub = Substitute.For<ISomeThing>();
-    someThingStub.Execute(Arg.Any<string>).Returns("Hello world!");
+    var stubSomeThing = Substitute.For<ISomeThing>();
+    stubSomeThing.Execute(Arg.Any<string>).Returns("Hello world!");
 
     // act
 
@@ -103,25 +114,16 @@ that our command happened, because this is the output of our System Under Test (
 
 ```c#
     // arrange
-    var someThingMock = Substitute.For<ISomeThing>();
-    someThingMock.Execute(Arg.Any<string>).Returns("Hello world!");
+    var mockSomeThing = Substitute.For<ISomeThing>();
+    mockSomeThing.Execute(Arg.Any<string>).Returns("Hello world!");
 
     // act
 
     // assert
-    someThingMock.Recieved().Execute(); // this will verify that the mock has be called
+    mockSomeThing.Recieved().Execute(); // this will verify that the mock has be called
 ```
 
 White paper testing with mocks: https://www.jamesshore.com/v2/projects/testing-without-mocks/testing-without-mocks
-
-### Test behaviour, not implementation
-
-We test the behaviour of the System Under Test (SUT), not the implementation. We don't care how the SUT does it, only
-that it does it.
-
-So we don't test private methods, because they are an implementation detail. We test the public methods, because they
-are the interface of the SUT. Don't test all the details or in-between steps. Test the expected outcome to prevent
-brittle tests.
 
 For more info see:
 https://enterprisecraftsmanship.com/posts/stubs-vs-mocks/

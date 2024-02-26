@@ -6,43 +6,43 @@ namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient.Tes
 public class OpenTelemetryServiceClientDecorator_Update
 {
     [Fact]
-    public void CallsUnderlyingServiceUpdateMethod_When_EntityIsProvided()
+    public void CallsUnderlyingService_When_EntityIsProvided()
     {
         // Arrange
-        var mockedService = Substitute.For<IOrganizationService>();
-        var decorator = new OpenTelemetryServiceClientDecorator(mockedService);
+        var mockService = Substitute.For<IOrganizationService>();
+        var decorator = new OpenTelemetryServiceClientDecorator(mockService);
         var entity = new Entity();
 
         // Act
         decorator.Update(entity);
 
         // Assert
-        mockedService.Received(1).Update(entity);
+        mockService.Received(1).Update(entity);
     }
 
     [Fact]
-    public void CallsUnderlyingServiceUpdateMethod_When_EntityIsNull()
+    public void CallsUnderlyingService_When_EntityIsNull()
     {
         // Arrange
-        var mockedService = Substitute.For<IOrganizationService>();
-        var decorator = new OpenTelemetryServiceClientDecorator(mockedService);
+        var mockService = Substitute.For<IOrganizationService>();
+        var decorator = new OpenTelemetryServiceClientDecorator(mockService);
         Entity entity = null!;
 
         // Act
         decorator.Update(entity);
 
         // Assert
-        mockedService.Received(1).Update(entity);
+        mockService.Received(1).Update(entity);
     }
 
     [SkippableFact]
-    public void ThrowFaultException_When_EntityIsNull_WithoutMocking()
+    public void ThrowUnderlyingFaultException_When_EntityIsNull_WithoutMocking()
     {
         Skip.IfNot(ServiceClientHelper.EnvVarConnectionOptionsExists);
 
         // Arrange
-        var serviceClient = ServiceClientHelper.CreateFromEnvVar();
-        var decorator = new OpenTelemetryServiceClientDecorator(serviceClient);
+        var client = ServiceClientHelper.CreateFromEnvVar();
+        var decorator = new OpenTelemetryServiceClientDecorator(client);
         Entity entity = null!;
 
         // Act

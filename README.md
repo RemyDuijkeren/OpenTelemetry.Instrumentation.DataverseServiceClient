@@ -8,7 +8,7 @@ This is an [Instrumentation Library](https://github.com/open-telemetry/opentelem
 which instruments [Dataverse ServiceClient](https://github.com/microsoft/PowerPlatform-DataverseServiceClient) and
 collect traces about incoming Dataverse requests.
 
-This component is based on the [v1.23](https://github.com/open-telemetry/semantic-conventions/tree/v1.23.0/docs/database)
+This component is based on the [v1.24](https://github.com/open-telemetry/semantic-conventions/tree/v1.24.0/docs/database)
 of database semantic conventions. For details on the default set of attributes that
 are added, checkout [Traces](#traces) sections below.
 
@@ -87,6 +87,38 @@ for more details about each individual attribute:
 * `error.type`
 * `server.address`
 * `server.port`
+
+## Add Custom Activities
+
+When you have helper methods for Dataverse calls that you want to trace, you can create custom activities, using the
+extension method `StartDataverseActivity`:
+
+```csharp
+public class DataverseHelper
+{
+    private readonly IOrganizationService _service;
+
+    public DataverseHelper(IOrganizationService service)
+    {
+        _service = service;
+    }
+
+    public void MyFirstHelperMethod()
+    {
+        using Activity? activity = _service.StartDataverseActivity();
+
+        // Add custom attributes (optional)
+        activity?.SetTag("custom.tag", "custom value");
+
+        // Use the service with your own logic
+        var response = _service.Execute(new WhoAmIRequest());
+    }
+}
+```
+
+There are overloads for `StartDataverseActivity` to pass in the `Entity` or `EntityReference`, _statement_ and
+_operation_. By default the _operation_ is the name of the method that called `StartDataverseActivity` and the
+_statement_ will contain the id of the specified entity.
 
 ## References
 

@@ -36,6 +36,34 @@ public class StartDataverseActivity
     }
 
     [Fact]
+    public void NotThrowException_When_EntityNameIsNull()
+    {
+        // Arrange
+        var service = Substitute.For<IOrganizationService>();
+        string? entityName = null;
+
+        // Act
+        Action act = () => service.StartDataverseActivity(entityName, null, null);
+
+        // Assert
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void NotThrowException_When_EntityNameIsNull_And_EntityIdIsDefault()
+    {
+        // Arrange
+        var service = Substitute.For<IOrganizationService>();
+        string? entityName = null;
+
+        // Act
+        Action act = () => service.StartDataverseActivity(entityName, default, null, null);
+
+        // Assert
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void TraceActivityWithExpectedTags_When_EntityAndOtherParams()
     {
         // Arrange
@@ -51,10 +79,7 @@ public class StartDataverseActivity
                                       .Build();
 
         // Act
-        using (var act = service.StartDataverseActivity(entity, statement, operation))
-        {
-            // do work
-        }
+        using (var act = service.StartDataverseActivity(entity, statement, operation)) { }
 
         // Assert
         var activity = exportedItems.FirstOrDefault();
@@ -66,6 +91,7 @@ public class StartDataverseActivity
         activity.Tags.SingleOrDefault(tag => tag.Key == ActivityTags.DbOperation).Value.Should().Be(operation);
         activity.Tags.SingleOrDefault(tag => tag.Key == ActivityTags.DbSqlTable).Value.Should().Be(entity.LogicalName);
         activity.Tags.SingleOrDefault(tag => tag.Key == ActivityTags.DbStatement).Value.Should().Be(statement);
+        activity.Tags.SingleOrDefault(tag => tag.Key == ActivityTags.DataverseEntityId).Value.Should().Be(entity.Id.ToString());
     }
 
     [Fact]
@@ -84,10 +110,7 @@ public class StartDataverseActivity
                                       .Build();
 
         // Act
-        using (var act = service.StartDataverseActivity(entity, statement, operation))
-        {
-            // do work
-        }
+        using (var act = service.StartDataverseActivity(entity, statement, operation)) { }
 
         // Assert
         var activity = exportedItems.FirstOrDefault();
@@ -99,6 +122,7 @@ public class StartDataverseActivity
         activity.Tags.SingleOrDefault(tag => tag.Key == ActivityTags.DbOperation).Value.Should().Be(operation);
         activity.Tags.SingleOrDefault(tag => tag.Key == ActivityTags.DbSqlTable).Value.Should().Be(entity.LogicalName);
         activity.Tags.SingleOrDefault(tag => tag.Key == ActivityTags.DbStatement).Value.Should().Be(statement);
+        activity.Tags.SingleOrDefault(tag => tag.Key == ActivityTags.DataverseEntityId).Value.Should().Be(entity.Id.ToString());
     }
 
     [Fact]
@@ -117,10 +141,7 @@ public class StartDataverseActivity
                                       .Build();
 
         // Act
-        using (var act = service.StartDataverseActivity(entityName, statement, operation))
-        {
-            // do work
-        }
+        using (var act = service.StartDataverseActivity(entityName, statement, operation)) { }
 
         // Assert
         var activity = exportedItems.FirstOrDefault();

@@ -9,30 +9,30 @@ public class OpenTelemetryServiceClientDecorator_Delete
     [InlineData(null)] // Test entity is null
     [InlineData("")] // Test entity is empty
     [InlineData("Test")]
-    public void CallsUnderlyingServiceCreateMethod(string? entityName)
+    public void CallsUnderlyingService(string? entityName)
     {
         // Arrange
-        var mockedService = Substitute.For<IOrganizationService>();
-        var decorator = new OpenTelemetryServiceClientDecorator(mockedService);
+        var mockService = Substitute.For<IOrganizationService>();
+        var decorator = new OpenTelemetryServiceClientDecorator(mockService);
         var id = Guid.NewGuid();
 
         // Act
         decorator.Delete(entityName!, id);
 
         // Assert
-        mockedService.Received(1).Delete(entityName, id);
+        mockService.Received(1).Delete(entityName, id);
     }
 
     [SkippableTheory]
     [InlineData(null)] // Test entity is null
     [InlineData("")] // Test entity is empty
-    public void ThrowFaultException_When_EntityNameIsNull_WithoutMocking(string? entityName)
+    public void ThrowUnderlyingFaultException_When_EntityNameIsNull_WithoutMocking(string? entityName)
     {
         Skip.IfNot(ServiceClientHelper.EnvVarConnectionOptionsExists);
 
         // Arrange
-        var serviceClient = ServiceClientHelper.CreateFromEnvVar();
-        var decorator = new OpenTelemetryServiceClientDecorator(serviceClient);
+        var service = ServiceClientHelper.CreateFromEnvVar();
+        var decorator = new OpenTelemetryServiceClientDecorator(service);
         var id = Guid.NewGuid();
 
         // Act
