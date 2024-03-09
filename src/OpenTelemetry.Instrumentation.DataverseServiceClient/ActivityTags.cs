@@ -1,6 +1,7 @@
 ﻿namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient;
 
-// https://github.com/open-telemetry/semantic-conventions/blob/main/docs/database/database-spans.md
+/// <summary>Provides constants for activity tags related to Dataverse operations and exceptions.</summary>
+/// <remarks>Based on <see href="https://github.com/open-telemetry/semantic-conventions/blob/main/docs/database/database-spans.md"/></remarks>
 static class ActivityTags
 {
     // Connection-level attributes

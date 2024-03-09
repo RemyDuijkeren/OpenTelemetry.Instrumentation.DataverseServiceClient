@@ -62,7 +62,7 @@ using Microsoft.PowerPlatform.Dataverse.Client;
 using OpenTelemetry.Instrumentation.DataverseServiceClient;
 
 var serviceClient = new ServiceClient(new ConnectionOptions { /* your config */ } );
-var decoratedServiceClient = new OpenTelemetryServiceClientDecorator(serviceClient);
+IOrganizationServiceAsync2 decoratedServiceClient = new OpenTelemetryServiceClientDecorator(serviceClient);
 
 // Use the decoratedServiceClient as you would use the serviceClient
 var response = decoratedServiceClient.Execute(new WhoAmIRequest());
@@ -117,8 +117,8 @@ public class DataverseHelper
 ```
 
 There are overloads for `StartDataverseActivity` to pass in the `Entity` or `EntityReference`, _statement_ and
-_operation_. By default the _operation_ is the name of the method that called `StartDataverseActivity` and the
-_statement_ will contain the id of the specified entity.
+_operation_. By default the _operation_ is the name of the method that called `StartDataverseActivity`, in this example
+`MyFirstHelperMethod`.
 
 ## References
 

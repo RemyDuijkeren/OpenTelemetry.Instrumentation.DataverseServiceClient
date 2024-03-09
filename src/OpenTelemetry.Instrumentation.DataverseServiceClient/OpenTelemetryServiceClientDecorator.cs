@@ -5,7 +5,7 @@ using Microsoft.Xrm.Sdk.Query;
 
 namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient;
 
-/// <summary>Decorate <see cref="IOrganizationServiceAsync2" /> interface with OpenTelemetry instrumentation.</summary>
+/// <summary>Decorator class that adds OpenTelemetry instrumentation to an instance of <see cref="IOrganizationServiceAsync2" />.</summary>
 public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
 {
     readonly IOrganizationService _service;
@@ -17,7 +17,9 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
                                                 throw new InvalidOperationException($"Wrapped service client is not a {typeof(IOrganizationServiceAsync2)}!");
     Guid ConnectedOrgId => _service is ServiceClient client ? client.ConnectedOrgId : Guid.Empty;
 
-    /// <summary>Decorate <see cref="IOrganizationServiceAsync2" /> interface with OpenTelemetry instrumentation.</summary>
+    /// <summary>Decorator for the <see cref="IOrganizationServiceAsync2" /> interface that adds OpenTelemetry instrumentation.</summary>
+    /// <param name="serviceClient">The instance of <see cref="IOrganizationService"/> that will be decorated.</param>
+    /// <exception cref="ArgumentNullException">When <paramref name="serviceClient"/> is null.</exception>
     public OpenTelemetryServiceClientDecorator(IOrganizationService? serviceClient)
     {
         _service = serviceClient ?? throw new ArgumentNullException(nameof(serviceClient));
