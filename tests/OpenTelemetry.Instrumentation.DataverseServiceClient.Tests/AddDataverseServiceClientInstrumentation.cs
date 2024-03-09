@@ -40,7 +40,7 @@ public class AddDataverseServiceClientInstrumentation
     }
 
     [Fact]
-    public void ReturnDecorator_When_OrganizationServiceAsync2Registration()
+    public void ReplaceWithDecorator_When_OrganizationServiceAsync2Registration()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -56,12 +56,13 @@ public class AddDataverseServiceClientInstrumentation
         var serviceProvider = services.BuildServiceProvider();
         var orgService = serviceProvider.GetRequiredService<IOrganizationServiceAsync2>();
 
+        orgService.Should().NotBeNull();
         orgService.Should().NotBe(serviceClientStub);
         orgService.Should().BeOfType<OpenTelemetryServiceClientDecorator>();
     }
 
     [Fact]
-    public void ReturnDecorator_When_OrganizationServiceAsyncRegistration()
+    public void ReplaceWithDecorator_When_OrganizationServiceAsyncRegistration()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -77,12 +78,13 @@ public class AddDataverseServiceClientInstrumentation
         var serviceProvider = services.BuildServiceProvider();
         var orgService = serviceProvider.GetRequiredService<IOrganizationServiceAsync>();
 
+        orgService.Should().NotBeNull();
         orgService.Should().NotBe(serviceClientStub);
         orgService.Should().BeOfType<OpenTelemetryServiceClientDecorator>();
     }
 
     [Fact]
-    public void ReturnDecorator_When_OrganizationServiceRegistration()
+    public void ReplaceWithDecorator_When_OrganizationServiceRegistration()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -98,12 +100,13 @@ public class AddDataverseServiceClientInstrumentation
         var serviceProvider = services.BuildServiceProvider();
         var orgService = serviceProvider.GetRequiredService<IOrganizationService>();
 
+        orgService.Should().NotBeNull();
         orgService.Should().NotBe(serviceClientStub);
         orgService.Should().BeOfType<OpenTelemetryServiceClientDecorator>();
     }
 
     [Fact]
-    public void ReturnDecorator_When_ServiceRegisteredAsInstance()
+    public void ReplaceWithDecorator_When_ServiceRegisteredAsInstance()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -124,7 +127,7 @@ public class AddDataverseServiceClientInstrumentation
     }
 
     [Fact]
-    public void ReturnDecorator_When_ServiceRegisteredUsingFactoryMethod()
+    public void ReplaceWithDecorator_When_ServiceRegisteredUsingFactoryMethod()
     {
         // Arrange
         var services = new ServiceCollection();
@@ -140,16 +143,16 @@ public class AddDataverseServiceClientInstrumentation
         var serviceProvider = services.BuildServiceProvider();
         var orgService = serviceProvider.GetRequiredService<IOrganizationServiceAsync2>();
 
+        orgService.Should().NotBeNull();
         orgService.Should().NotBe(serviceClientStub);
         orgService.Should().BeOfType<OpenTelemetryServiceClientDecorator>();
     }
 
     [Fact]
-    public void ReturnDecorator_When_ServiceRegisteredAsType()
+    public void ReplaceWithDecorator_When_ServiceRegisteredAsType()
     {
         // Arrange
         var services = new ServiceCollection();
-        var serviceClientStub = Substitute.For<IOrganizationServiceAsync2>();
         services.AddSingleton<IOrganizationService,NullServiceClient>();
 
         // Act
@@ -161,7 +164,83 @@ public class AddDataverseServiceClientInstrumentation
         var serviceProvider = services.BuildServiceProvider();
         var orgService = serviceProvider.GetRequiredService<IOrganizationService>();
 
-        orgService.Should().NotBe(serviceClientStub);
+        orgService.Should().NotBeNull();
+        orgService.Should().NotBeOfType<NullServiceClient>();
         orgService.Should().BeOfType<OpenTelemetryServiceClientDecorator>();
+    }
+
+    [Fact]
+    public void ReplaceWithSingletonDecorator_When_ServiceRegisteredAsSingleton()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var serviceClientStub = Substitute.For<IOrganizationServiceAsync2>();
+        services.AddSingleton<IOrganizationServiceAsync2>(_ => serviceClientStub);
+
+        // Act
+        services.AddOpenTelemetry()
+                .WithTracing(builder => builder
+                    .AddDataverseServiceClientInstrumentation());
+
+        // Assert
+        var serviceProvider = services.BuildServiceProvider();
+        var orgService = serviceProvider.GetRequiredService<IOrganizationServiceAsync2>();
+
+        orgService.Should().NotBeNull();
+        orgService.Should().NotBe(serviceClientStub);
+        serviceProvider.GetRequiredService<IOrganizationServiceAsync2>().Should().BeSameAs(orgService);
+    }
+
+    [Fact]
+    public void ReplaceWithScopedDecorator_When_ServiceRegisteredAsScoped()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var serviceClientStub = Substitute.For<IOrganizationServiceAsync2>();
+        services.AddScoped<IOrganizationServiceAsync2>(_ => serviceClientStub);
+
+        // Act
+        services.AddOpenTelemetry()
+                .WithTracing(builder => builder
+                    .AddDataverseServiceClientInstrumentation());
+
+        // Assert
+        var serviceProvider = services.BuildServiceProvider();
+
+        var scope1 = serviceProvider.CreateScope();
+        var scope2 = serviceProvider.CreateScope();
+
+        var orgService1 = scope1.ServiceProvider.GetRequiredService<IOrganizationServiceAsync2>();
+        var orgService2 = scope2.ServiceProvider.GetRequiredService<IOrganizationServiceAsync2>();
+
+        orgService1.Should().NotBeNull();
+        orgService2.Should().NotBeNull();
+
+        orgService1.Should().NotBeSameAs(orgService2);
+    }
+
+    [Fact]
+    public void ReplaceWithTransientDecorator_When_ServiceRegisteredAsTransient()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var serviceClientStub = Substitute.For<IOrganizationServiceAsync2>();
+        services.AddScoped<IOrganizationServiceAsync2>(_ => serviceClientStub);
+
+        // Act
+        services.AddOpenTelemetry()
+                .WithTracing(builder => builder
+                    .AddDataverseServiceClientInstrumentation());
+
+        // Assert
+        var serviceProvider = services.BuildServiceProvider();
+
+        var orgService1 = serviceProvider.GetRequiredService<IOrganizationServiceAsync2>();
+        var orgService2 = serviceProvider.GetRequiredService<IOrganizationServiceAsync2>();
+
+        orgService1.Should().NotBeNull();
+        orgService2.Should().NotBeNull();
+
+        orgService1.Should().NotBeSameAs(orgService2);
     }
 }
