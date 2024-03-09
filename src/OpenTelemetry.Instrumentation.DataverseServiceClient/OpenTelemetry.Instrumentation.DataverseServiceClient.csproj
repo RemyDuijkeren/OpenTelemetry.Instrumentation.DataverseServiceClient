@@ -44,7 +44,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.17"/>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="All"/>
+    <PackageReference Include="MinVer" Version="5.0.0" PrivateAssets="All" />
     <PackageReference Include="OpenTelemetry" Version="1.7.0"/>
   </ItemGroup>
 
