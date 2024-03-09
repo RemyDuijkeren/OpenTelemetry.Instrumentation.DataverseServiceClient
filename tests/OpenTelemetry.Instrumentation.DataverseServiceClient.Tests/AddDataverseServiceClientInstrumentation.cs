@@ -215,6 +215,8 @@ public class AddDataverseServiceClientInstrumentation
 
         orgService1.Should().NotBeNull();
         orgService2.Should().NotBeNull();
+        orgService1.Should().NotBe(serviceClientStub);
+        orgService2.Should().NotBe(serviceClientStub);
 
         orgService1.Should().NotBeSameAs(orgService2);
     }
@@ -225,7 +227,7 @@ public class AddDataverseServiceClientInstrumentation
         // Arrange
         var services = new ServiceCollection();
         var serviceClientStub = Substitute.For<IOrganizationServiceAsync2>();
-        services.AddScoped<IOrganizationServiceAsync2>(_ => serviceClientStub);
+        services.AddTransient<IOrganizationServiceAsync2>(_ => serviceClientStub);
 
         // Act
         services.AddOpenTelemetry()
@@ -234,13 +236,10 @@ public class AddDataverseServiceClientInstrumentation
 
         // Assert
         var serviceProvider = services.BuildServiceProvider();
+        var orgService = serviceProvider.GetRequiredService<IOrganizationServiceAsync2>();
 
-        var orgService1 = serviceProvider.GetRequiredService<IOrganizationServiceAsync2>();
-        var orgService2 = serviceProvider.GetRequiredService<IOrganizationServiceAsync2>();
-
-        orgService1.Should().NotBeNull();
-        orgService2.Should().NotBeNull();
-
-        orgService1.Should().NotBeSameAs(orgService2);
+        orgService.Should().NotBeNull();
+        orgService.Should().NotBe(serviceClientStub);
+        serviceProvider.GetRequiredService<IOrganizationServiceAsync2>().Should().NotBeSameAs(orgService);
     }
 }
