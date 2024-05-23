@@ -7,7 +7,6 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <RootNamespace>RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

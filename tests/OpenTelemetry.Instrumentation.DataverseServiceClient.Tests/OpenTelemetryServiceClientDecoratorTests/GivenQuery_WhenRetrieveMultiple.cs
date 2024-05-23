@@ -2,12 +2,12 @@
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 
-namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
+namespace OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
 
-public class OpenTelemetryServiceClientDecorator_RetrieveMultiple
+public class GivenQuery_WhenRetrieveMultiple
 {
     [Fact]
-    public void CallsUnderlyingService_When_QueryIsNull()
+    public void RetrieveMultipleOnDecoratedService_When_QueryIsNull()
     {
         // Arrange
         var mockService = Substitute.For<IOrganizationService>();
@@ -22,7 +22,7 @@ public class OpenTelemetryServiceClientDecorator_RetrieveMultiple
     }
 
     [Fact]
-    public void CallsUnderlyingService_When_QueryExpressionProvided()
+    public void RetrieveMultipleOnDecoratedService_When_QueryExpressionProvided()
     {
         // Arrange
         var mockService = Substitute.For<IOrganizationService>();
@@ -37,7 +37,7 @@ public class OpenTelemetryServiceClientDecorator_RetrieveMultiple
     }
 
     [Fact]
-    public void CallsUnderlyingService_When_QueryByAttributeProvided()
+    public void RetrieveMultipleOnDecoratedService_When_QueryByAttributeProvided()
     {
         // Arrange
         var mockService = Substitute.For<IOrganizationService>();
@@ -52,7 +52,7 @@ public class OpenTelemetryServiceClientDecorator_RetrieveMultiple
     }
 
     [Fact]
-    public void CallsUnderlyingService_When_FetchExpressionProvided()
+    public void RetrieveMultipleOnDecoratedService_When_FetchExpressionProvided()
     {
         // Arrange
         var mockService = Substitute.For<IOrganizationService>();
@@ -67,7 +67,7 @@ public class OpenTelemetryServiceClientDecorator_RetrieveMultiple
     }
 
     [Fact]
-    public void CallsUnderlyingService_When_UnknownQueryTypeProvided()
+    public void RetrieveMultipleOnDecoratedService_When_UnknownQueryTypeProvided()
     {
         // Arrange
         var mockService = Substitute.For<IOrganizationService>();

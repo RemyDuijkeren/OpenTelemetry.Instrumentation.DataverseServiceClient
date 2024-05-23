@@ -1,11 +1,11 @@
 ﻿using Microsoft.Xrm.Sdk;
 
-namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
+namespace OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
 
-public class OpenTelemetryServiceClientDecorator_Execute
+public class GivenOrganizationRequest_WhenExecute
 {
     [Fact]
-    public void CallsUnderlyingService_When_RequestIsProvided()
+    public void ExecuteOnDecoratedService_When_RequestIsProvided()
     {
         // Arrange
         var mockService = Substitute.For<IOrganizationService>();
@@ -20,7 +20,7 @@ public class OpenTelemetryServiceClientDecorator_Execute
     }
 
     [Fact]
-    public void CallsUnderlyingService_When_RequestIsNull()
+    public void ExecuteOnDecoratedService_When_RequestIsNull()
     {
         // Arrange
         var mockService = Substitute.For<IOrganizationService>();

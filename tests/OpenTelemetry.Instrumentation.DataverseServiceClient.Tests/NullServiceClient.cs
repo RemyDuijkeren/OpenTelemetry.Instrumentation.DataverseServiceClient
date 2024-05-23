@@ -1,10 +1,11 @@
 ﻿using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 
-namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
+namespace OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
 
 class NullServiceClient : IOrganizationService
 {
+    public static IOrganizationService Instance { get; } = new NullServiceClient();
     public Guid Create(Entity entity) => Guid.Empty;
     public Entity Retrieve(string entityName, Guid id, ColumnSet columnSet) => new() { LogicalName = entityName, Id = id };
     public void Update(Entity entity) { }

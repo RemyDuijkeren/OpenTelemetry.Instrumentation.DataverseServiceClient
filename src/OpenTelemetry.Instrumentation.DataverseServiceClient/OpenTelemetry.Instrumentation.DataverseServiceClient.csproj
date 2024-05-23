@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient</RootNamespace>
     <TargetFrameworks>net6.0;net462;net472;net48</TargetFrameworks>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RestoreLockedMode Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</RestoreLockedMode>

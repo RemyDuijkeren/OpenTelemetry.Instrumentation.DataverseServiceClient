@@ -1,9 +1,9 @@
 ﻿using Microsoft.PowerPlatform.Dataverse.Client;
 using Microsoft.Xrm.Sdk;
 
-namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
+namespace OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
 
-public class OpenTelemetryServiceClientDecorator_Operator
+public class GivenDecoratedServiceClient_Operator
 {
     [SkippableFact]
     public void ReturnServiceClientFromDecorator_When_Cast()

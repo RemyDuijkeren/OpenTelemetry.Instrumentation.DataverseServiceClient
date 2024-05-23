@@ -1,9 +1,8 @@
 ﻿using System.Text.Json;
 using Microsoft.PowerPlatform.Dataverse.Client;
 using Microsoft.PowerPlatform.Dataverse.Client.Model;
-using Microsoft.Xrm.Sdk;
 
-namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
+namespace OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
 
 public static class ServiceClientHelper
 {
@@ -11,6 +10,9 @@ public static class ServiceClientHelper
 
     public static ServiceClient CreateFromEnvVar()
     {
+        // Example of the JSON string that should be stored in the environment variable (without enters)
+        // string json = """{ "AuthenticationType": 7, "ClientId": "...", "ClientSecret": "...", "ServiceUri": "https://....crm4.dynamics.com/" }""";
+
         var jsonString = Environment.GetEnvironmentVariable(DataverseConnectionOptions);
         if (jsonString == null)
             throw new InvalidOperationException($"Environment variable not found: {DataverseConnectionOptions}");
@@ -19,6 +21,5 @@ public static class ServiceClientHelper
         return new ServiceClient(options);
     }
 
-    public static IOrganizationService CreateNullServiceClient() => new NullServiceClient();
     public static bool EnvVarConnectionOptionsExists => Environment.GetEnvironmentVariable(DataverseConnectionOptions) != null;
 }

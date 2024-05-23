@@ -2,15 +2,15 @@
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 
-namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
+namespace OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
 
-public class OpenTelemetryServiceClientDecorator_Retrieve
+public class GivenEntityId_WhenRetrieve
 {
     [Theory]
     [InlineData(null)] // Test entity is null
     [InlineData("")] // Test entity is empty
     [InlineData("Test")]
-    public void CallsUnderlyingService(string? entityName)
+    public void RetrieveOnDecoratedService(string? entityName)
     {
         // Arrange
         var mockService = Substitute.For<IOrganizationService>();

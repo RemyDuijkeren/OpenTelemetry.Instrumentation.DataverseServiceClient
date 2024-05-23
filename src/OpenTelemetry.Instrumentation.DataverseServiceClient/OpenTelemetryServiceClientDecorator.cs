@@ -3,7 +3,7 @@ using Microsoft.PowerPlatform.Dataverse.Client;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 
-namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient;
+namespace OpenTelemetry.Instrumentation.DataverseServiceClient;
 
 /// <summary>Decorator class that adds OpenTelemetry instrumentation to an instance of <see cref="IOrganizationServiceAsync2" />.</summary>
 public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
@@ -29,10 +29,17 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     public Guid Create(Entity entity)
     {
         using Activity? activity = Service.StartDataverseActivity(entity);
+
         var id = Service.Create(entity);
         activity?.SetTag(ActivityTags.DataverseEntityId, id.ToString());
-        // string insertSql = $"INSERT INTO {entity.LogicalName} ({string.Join(", ", entity.Attributes.Keys)}) VALUES ({string.Join(", ", entity.Attributes.Values)})";
-        // activity?.SetTag(ActivityTags.DbStatement, insertSql);
+
+        if (entity is not null)
+        {
+            string insertSql =
+                $"INSERT INTO {entity.LogicalName} ({string.Join(", ", entity.Attributes.Keys)}) VALUES ({string.Join(", ", entity.Attributes.Values)})";
+            activity?.SetTag(ActivityTags.DbStatement, insertSql);
+        }
+
         return id;
     }
 
@@ -127,10 +134,21 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     }
 
     /// <inheritdoc />
-    public Task<Guid> CreateAsync(Entity entity)
+    public async Task<Guid> CreateAsync(Entity entity)
     {
         using Activity? activity = ServiceAsync.StartDataverseActivity(entity);
-        return ServiceAsync.CreateAsync(entity);
+        var id = await ServiceAsync.CreateAsync(entity);
+
+        activity?.SetTag(ActivityTags.DataverseEntityId, id.ToString());
+
+        if (entity is not null)
+        {
+            string insertSql =
+                $"INSERT INTO {entity.LogicalName} ({string.Join(", ", entity.Attributes.Keys)}) VALUES ({string.Join(", ", entity.Attributes.Values)})";
+            activity?.SetTag(ActivityTags.DbStatement, insertSql);
+        }
+
+        return id;
     }
 
     /// <inheritdoc />
@@ -230,10 +248,22 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     }
 
     /// <inheritdoc />
-    public Task<Guid> CreateAsync(Entity entity, CancellationToken cancellationToken)
+    public async Task<Guid> CreateAsync(Entity entity, CancellationToken cancellationToken)
     {
         using Activity? activity = ServiceAsync2.StartDataverseActivity(entity);
-        return ServiceAsync2.CreateAsync(entity, cancellationToken);
+
+        var id = await ServiceAsync2.CreateAsync(entity, cancellationToken);
+
+        activity?.SetTag(ActivityTags.DataverseEntityId, id.ToString());
+
+        if (entity is not null)
+        {
+            string insertSql =
+                $"INSERT INTO {entity.LogicalName} ({string.Join(", ", entity.Attributes.Keys)}) VALUES ({string.Join(", ", entity.Attributes.Values)})";
+            activity?.SetTag(ActivityTags.DbStatement, insertSql);
+        }
+
+        return id;
     }
 
     /// <inheritdoc />

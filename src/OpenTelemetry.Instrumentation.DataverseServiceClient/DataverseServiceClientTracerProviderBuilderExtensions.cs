@@ -4,7 +4,7 @@ using Microsoft.PowerPlatform.Dataverse.Client;
 using Microsoft.Xrm.Sdk;
 using OpenTelemetry.Trace;
 
-namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient;
+namespace OpenTelemetry.Instrumentation.DataverseServiceClient;
 
 public static class DataverseServiceClientTracerProviderBuilderExtensions
 {

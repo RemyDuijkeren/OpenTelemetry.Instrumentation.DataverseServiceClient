@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics;
 using Microsoft.Xrm.Sdk;
-using OpenTelemetry;
 using OpenTelemetry.Trace;
 
-namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
+namespace OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
 
 public class StartDataverseActivity
 {

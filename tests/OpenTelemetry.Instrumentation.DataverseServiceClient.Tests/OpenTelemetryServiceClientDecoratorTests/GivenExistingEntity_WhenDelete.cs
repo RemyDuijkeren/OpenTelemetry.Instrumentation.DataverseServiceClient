@@ -1,15 +1,15 @@
 ﻿using System.ServiceModel;
 using Microsoft.Xrm.Sdk;
 
-namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
+namespace OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
 
-public class OpenTelemetryServiceClientDecorator_Delete
+public class GivenExistingEntity_WhenDelete
 {
     [Theory]
     [InlineData(null)] // Test entity is null
     [InlineData("")] // Test entity is empty
     [InlineData("Test")]
-    public void CallsUnderlyingService(string? entityName)
+    public void DeleteOnDecoratedService(string? entityName)
     {
         // Arrange
         var mockService = Substitute.For<IOrganizationService>();
@@ -26,7 +26,7 @@ public class OpenTelemetryServiceClientDecorator_Delete
     [SkippableTheory]
     [InlineData(null)] // Test entity is null
     [InlineData("")] // Test entity is empty
-    public void ThrowUnderlyingFaultException_When_EntityNameIsNull_WithoutMocking(string? entityName)
+    public void ThrowUnderlyingFaultException_WhenEntityNameIsNull_WithoutMocking(string? entityName)
     {
         Skip.IfNot(ServiceClientHelper.EnvVarConnectionOptionsExists);
 

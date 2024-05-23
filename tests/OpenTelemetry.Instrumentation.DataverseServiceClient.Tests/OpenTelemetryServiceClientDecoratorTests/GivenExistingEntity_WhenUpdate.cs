@@ -1,12 +1,12 @@
 ﻿using System.ServiceModel;
 using Microsoft.Xrm.Sdk;
 
-namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
+namespace OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
 
-public class OpenTelemetryServiceClientDecorator_Update
+public class GivenExistingEntity_WhenUpdate
 {
     [Fact]
-    public void CallsUnderlyingService_When_EntityIsProvided()
+    public void UpdateOnDecoratedService_When_EntityIsProvided()
     {
         // Arrange
         var mockService = Substitute.For<IOrganizationService>();
@@ -21,7 +21,7 @@ public class OpenTelemetryServiceClientDecorator_Update
     }
 
     [Fact]
-    public void CallsUnderlyingService_When_EntityIsNull()
+    public void UpdateOnDecoratedService_When_EntityIsNull()
     {
         // Arrange
         var mockService = Substitute.For<IOrganizationService>();

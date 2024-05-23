@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.PowerPlatform.Dataverse.Client;
 using Microsoft.Xrm.Sdk;
 
-namespace RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient;
+namespace OpenTelemetry.Instrumentation.DataverseServiceClient;
 
 /// <summary>Contains extension methods for working with the ServiceClient class.</summary>
 public static class ServiceClientExtensions
