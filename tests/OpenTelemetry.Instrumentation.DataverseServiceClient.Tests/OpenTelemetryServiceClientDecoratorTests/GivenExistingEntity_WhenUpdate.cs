@@ -1,54 +1,179 @@
-﻿using System.ServiceModel;
+﻿using System.Diagnostics;
+using System.ServiceModel;
+using Microsoft.PowerPlatform.Dataverse.Client;
 using Microsoft.Xrm.Sdk;
+using OpenTelemetry.Trace;
 
 namespace OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
 
 public class GivenExistingEntity_WhenUpdate
 {
-    [Fact]
-    public void UpdateOnDecoratedService_When_EntityIsProvided()
+    readonly Entity _entity;
+    readonly IOrganizationServiceAsync2 _mockService;
+    readonly OpenTelemetryServiceClientDecorator _decorator;
+    readonly IDictionary<string, string?> _expectedTags;
+
+    public GivenExistingEntity_WhenUpdate()
     {
-        // Arrange
-        var mockService = Substitute.For<IOrganizationService>();
-        var decorator = new OpenTelemetryServiceClientDecorator(mockService);
-        var entity = new Entity();
+        _entity = new Entity("TestEntity", Guid.NewGuid())
+        {
+            Attributes =
+            {
+                ["name"] = "testName",
+                ["address1"] = "testAddress1",
+            }
+        };
 
-        // Act
-        decorator.Update(entity);
+        _mockService = Substitute.For<IOrganizationServiceAsync2>();
+        _decorator = new OpenTelemetryServiceClientDecorator(_mockService);
 
-        // Assert
-        mockService.Received(1).Update(entity);
+        _expectedTags = new Dictionary<string, string?>
+        {
+            { ActivityTags.DbSystem, "dataverse" },
+            { ActivityTags.DbName, "dataverse" },
+            { ActivityTags.DbOperation, "UpdateAsync" },
+            { ActivityTags.DbSqlTable, _entity.LogicalName },
+            { ActivityTags.DataverseEntityId, _entity.Id.ToString() },
+            { ActivityTags.DbStatement, _entity.ToUpdateStatement() }
+        };
     }
 
-    [Fact]
-    public void UpdateOnDecoratedService_When_EntityIsNull()
+    [Theory]
+    [InlineData(ServiceCallMode.Sync)]
+    [InlineData(ServiceCallMode.Async)]
+    [InlineData(ServiceCallMode.AsyncWithCancellationToken)]
+    public async Task CallUpdateOnDecoratedService(ServiceCallMode serviceCallMode)
     {
-        // Arrange
-        var mockService = Substitute.For<IOrganizationService>();
-        var decorator = new OpenTelemetryServiceClientDecorator(mockService);
-        Entity entity = null!;
-
-        // Act
-        decorator.Update(entity);
-
-        // Assert
-        mockService.Received(1).Update(entity);
+        switch (serviceCallMode)
+        {
+            case ServiceCallMode.Sync:
+                // Act
+                _decorator.Update(_entity);
+                // Assert
+                _mockService.Received(1).Update(_entity);
+                break;
+            case ServiceCallMode.Async:
+                // Act
+                await _decorator.UpdateAsync(_entity);
+                // Assert
+                await _mockService.Received(1).UpdateAsync(_entity);
+                break;
+            case ServiceCallMode.AsyncWithCancellationToken:
+                // Act
+                await _decorator.UpdateAsync(_entity, new CancellationToken());
+                // Assert
+                await _mockService.Received(1).UpdateAsync(_entity, Arg.Any<CancellationToken>());
+                break;
+        }
     }
 
-    [SkippableFact]
-    public void ThrowUnderlyingFaultException_When_EntityIsNull_WithoutMocking()
+    [Theory]
+    [InlineData(ServiceCallMode.Sync)]
+    [InlineData(ServiceCallMode.Async)]
+    [InlineData(ServiceCallMode.AsyncWithCancellationToken)]
+    public async Task CallUpdateOnDecoratedService_WhenEntityIsNull(ServiceCallMode serviceCallMode)
+    {
+        switch (serviceCallMode)
+        {
+            case ServiceCallMode.Sync:
+                // Act
+                _decorator.Update(null!);
+                // Assert
+                _mockService.Received(1).Update(null);
+                break;
+            case ServiceCallMode.Async:
+                // Act
+                await _decorator.UpdateAsync(null!);
+                // Assert
+                await _mockService.Received(1).UpdateAsync(null);
+                break;
+            case ServiceCallMode.AsyncWithCancellationToken:
+                // Act
+                await _decorator.UpdateAsync(null!, new CancellationToken());
+                // Assert
+                await _mockService.Received(1).UpdateAsync(null, Arg.Any<CancellationToken>());
+                break;
+        }
+    }
+
+    [SkippableTheory]
+    [InlineData(ServiceCallMode.Sync)]
+    [InlineData(ServiceCallMode.Async)]
+    [InlineData(ServiceCallMode.AsyncWithCancellationToken)]
+    public async Task ThrowFaultExceptionByDecoratedService_WhenEntityIsNull_WithoutMocking(ServiceCallMode serviceCallMode)
     {
         Skip.IfNot(ServiceClientHelper.EnvVarConnectionOptionsExists);
 
         // Arrange
-        var client = ServiceClientHelper.CreateFromEnvVar();
-        var decorator = new OpenTelemetryServiceClientDecorator(client);
+        var service = ServiceClientHelper.CreateFromEnvVar();
+        var decorator = new OpenTelemetryServiceClientDecorator(service);
         Entity entity = null!;
 
+        if (serviceCallMode == ServiceCallMode.Sync)
+        {
+            // Act
+            Action act1 = () => decorator.Update(entity);
+            // Assert
+            act1.Should().Throw<FaultException<OrganizationServiceFault>>().WithMessage("Required field 'Target' is missing");
+        }
+        else
+        {
+            // Act
+            Func<Task> act2 = () => serviceCallMode switch
+            {
+                ServiceCallMode.Async => decorator.UpdateAsync(entity),
+                ServiceCallMode.AsyncWithCancellationToken => decorator.UpdateAsync(entity, new CancellationToken()),
+            };
+
+            // Assert
+            await act2.Should().ThrowAsync<FaultException<OrganizationServiceFault>>().WithMessage("Required field 'Target' is missing");
+        }
+    }
+
+    [Theory]
+    [InlineData(ServiceCallMode.Sync)]
+    [InlineData(ServiceCallMode.Async)]
+    [InlineData(ServiceCallMode.AsyncWithCancellationToken)]
+    public async Task ExportActivityWithTags_WhenExporterIsEnabled(ServiceCallMode serviceCallMode)
+    {
+        // Arrange
+        var exportedItems = new List<Activity>();
+        using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+            .AddDataverseServiceClientInstrumentation()
+            .AddInMemoryExporter(exportedItems)
+            .Build();
+
         // Act
-        Action act = () => decorator.Update(entity);
+        switch (serviceCallMode)
+        {
+            case ServiceCallMode.Sync:
+                _decorator.Update(_entity);
+                break;
+            case ServiceCallMode.Async:
+                await _decorator.UpdateAsync(_entity);
+                break;
+            case ServiceCallMode.AsyncWithCancellationToken:
+                await _decorator.UpdateAsync(_entity, new CancellationToken());
+                break;
+        }
 
         // Assert
-        act.Should().Throw<FaultException<OrganizationServiceFault>>();
+        var activity = exportedItems.FirstOrDefault();
+
+        activity.Should().NotBeNull();
+        activity!.Kind.Should().Be(ActivityKind.Client);
+        activity.Tags.Should().OnlyHaveUniqueItems();
+
+        var operationName = serviceCallMode switch
+        {
+            ServiceCallMode.Sync => "Update",
+            ServiceCallMode.Async => "UpdateAsync",
+            ServiceCallMode.AsyncWithCancellationToken => "UpdateAsync"
+        };
+
+        _expectedTags[ActivityTags.DbOperation] = operationName;
+
+        activity.OperationName.Should().Be($"{operationName} {_entity.LogicalName}");
+        activity.Tags.Should().Contain(_expectedTags);
     }
 }
