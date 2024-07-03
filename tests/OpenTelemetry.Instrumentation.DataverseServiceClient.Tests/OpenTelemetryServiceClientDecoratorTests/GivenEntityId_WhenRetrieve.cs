@@ -75,10 +75,10 @@ public class GivenEntityId_WhenRetrieve
     [InlineData(ServiceCallMode.AsyncWithCancellationToken)]
     public async Task ThrowNullReferenceExceptionByDecoratedService_WhenEntityNameIsNull_WithoutMocking(ServiceCallMode serviceCallMode)
     {
-        Skip.IfNot(ServiceClientHelper.EnvVarConnectionOptionsExists);
+        Skip.IfNot(TestContext.EnvVarConnectionOptionsExists);
 
         // Arrange
-        var service = ServiceClientHelper.CreateFromEnvVar();
+        var service = TestContext.CreateServiceClientFromEnvVar();
         var decorator = new OpenTelemetryServiceClientDecorator(service);
 
         if (serviceCallMode == ServiceCallMode.Sync)

@@ -102,10 +102,10 @@ public class GivenExistingEntity_WhenUpdate
     [InlineData(ServiceCallMode.AsyncWithCancellationToken)]
     public async Task ThrowFaultExceptionByDecoratedService_WhenEntityIsNull_WithoutMocking(ServiceCallMode serviceCallMode)
     {
-        Skip.IfNot(ServiceClientHelper.EnvVarConnectionOptionsExists);
+        Skip.IfNot(TestContext.EnvVarConnectionOptionsExists);
 
         // Arrange
-        var service = ServiceClientHelper.CreateFromEnvVar();
+        var service = TestContext.CreateServiceClientFromEnvVar();
         var decorator = new OpenTelemetryServiceClientDecorator(service);
         Entity entity = null!;
 

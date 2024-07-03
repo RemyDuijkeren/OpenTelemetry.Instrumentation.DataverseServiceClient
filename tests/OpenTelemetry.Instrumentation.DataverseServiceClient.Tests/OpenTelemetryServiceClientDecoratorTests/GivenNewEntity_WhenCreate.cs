@@ -125,10 +125,10 @@ public class GivenNewEntity_WhenCreate
     [InlineData(ServiceCallMode.AsyncWithCancellationToken, true)]
     public async Task ThrowFaultExceptionByDecoratedService_WhenEntityIsNull_WithoutMocking(ServiceCallMode serviceCallMode, bool returnCreatedEntity = false)
     {
-        Skip.IfNot(ServiceClientHelper.EnvVarConnectionOptionsExists);
+        Skip.IfNot(TestContext.EnvVarConnectionOptionsExists);
 
         // Arrange
-        var service = ServiceClientHelper.CreateFromEnvVar();
+        var service = TestContext.CreateServiceClientFromEnvVar();
         var decorator = new OpenTelemetryServiceClientDecorator(service);
         Entity entity = null!;
 
