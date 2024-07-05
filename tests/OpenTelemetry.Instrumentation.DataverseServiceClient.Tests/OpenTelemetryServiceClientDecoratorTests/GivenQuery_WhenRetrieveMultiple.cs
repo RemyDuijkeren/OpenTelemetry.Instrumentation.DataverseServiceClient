@@ -84,10 +84,11 @@ public class GivenQuery_WhenRetrieveMultiple
     [SkippableFact]
     public void ThrowUnderlyingFaultException_When_QueryIsNull_WithoutMocking()
     {
-        Skip.IfNot(TestContext.EnvVarConnectionOptionsExists);
+        Skip.IfNot(TestContext.CanCreateXrmRealContext);
 
         // Arrange
-        var service = TestContext.CreateServiceClientFromEnvVar();
+        using TestContext testContext = new();
+        var service = testContext.XrmRealContext.GetAsyncOrganizationService2();
         var decorator = new OpenTelemetryServiceClientDecorator(service);
         QueryExpression query = null!;
 

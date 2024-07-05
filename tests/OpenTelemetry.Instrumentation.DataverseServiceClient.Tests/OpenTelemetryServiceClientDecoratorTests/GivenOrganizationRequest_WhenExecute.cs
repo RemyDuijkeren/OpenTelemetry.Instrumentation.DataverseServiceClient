@@ -37,11 +37,11 @@ public class GivenOrganizationRequest_WhenExecute
     [SkippableFact]
     public void ThrowUnderlyingNullReferenceException_When_RequestIsNull_WithoutMocking()
     {
-        Skip.IfNot(TestContext.EnvVarConnectionOptionsExists);
+        Skip.IfNot(TestContext.CanCreateXrmRealContext);
 
         // Arrange
-        //var service = TestContext.XrmRealContext.GetOrganizationService();
-        var service = TestContext.CreateServiceClientFromEnvVar();
+        using TestContext testContext = new();
+        var service = testContext.XrmRealContext.GetOrganizationService();
         var decorator = new OpenTelemetryServiceClientDecorator(service);
         OrganizationRequest organizationRequest = null!;
 
@@ -56,8 +56,9 @@ public class GivenOrganizationRequest_WhenExecute
     public void ThrowUnderlyingNullReferenceException_When_RequestIsNull_WithXrmFakedContext()
     {
         // Arrange
-        var service = TestContext.XrmFakedContext.GetOrganizationService();
-        var decorator = new OpenTelemetryServiceClientDecorator(service);
+        using TestContext testContext = new();
+        var mockService = testContext.XrmFakedContext.GetOrganizationService();
+        var decorator = new OpenTelemetryServiceClientDecorator(mockService);
         OrganizationRequest organizationRequest = null!;
 
         // Act

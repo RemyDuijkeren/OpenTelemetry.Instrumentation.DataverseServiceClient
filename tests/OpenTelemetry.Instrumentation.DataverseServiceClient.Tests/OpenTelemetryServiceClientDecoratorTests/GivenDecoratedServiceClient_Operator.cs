@@ -8,10 +8,11 @@ public class GivenDecoratedServiceClient_Operator
     [SkippableFact]
     public void ReturnServiceClientFromDecorator_When_Cast()
     {
-        Skip.IfNot(TestContext.EnvVarConnectionOptionsExists);
+        Skip.IfNot(TestContext.CanCreateXrmRealContext);
 
         // Arrange
-        var service = TestContext.CreateServiceClientFromEnvVar();
+        using TestContext testContext = new();
+        var service = testContext.XrmRealContext.GetAsyncOrganizationService2();
         var decorator = new OpenTelemetryServiceClientDecorator(service);
 
         // Act
@@ -24,10 +25,11 @@ public class GivenDecoratedServiceClient_Operator
     [SkippableFact]
     public void ReturnServiceClientFromDecorator_When_CallingInternalServiceClient()
     {
-        Skip.IfNot(TestContext.EnvVarConnectionOptionsExists);
+        Skip.IfNot(TestContext.CanCreateXrmRealContext);
 
         // Arrange
-        var service = TestContext.CreateServiceClientFromEnvVar();
+        using TestContext testContext = new();
+        var service = testContext.XrmRealContext.GetAsyncOrganizationService2();
         var decorator = new OpenTelemetryServiceClientDecorator(service);
 
         // Act
