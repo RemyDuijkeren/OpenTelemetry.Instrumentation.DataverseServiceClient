@@ -2,7 +2,7 @@
 
 ## Test Frameworks and libraries
 
-As test framework we use [xUnit](https://xunit.net/). For mocking we use [NSubstitute](https://nsubstitute.github.io/).
+As test framework we use [xUnit](https://xunit.net/). For mocking we use [NSubstitute](https://nsubstitute.github.io/) and [Fake Xrm Easy](https://github.com/DynamicsValue/fake-xrm-easy).
 
 We use [AutoBogus](https://github.com/nickdodd79/AutoBogus), which uses [Bogus](https://github.com/bchavez/Bogus)
 to generate fake data. To use AutoBogus, we only need to reference [AutoBogus.NSubstitute](https://www.nuget.org/packages/AutoBogus.NSubstitute),
