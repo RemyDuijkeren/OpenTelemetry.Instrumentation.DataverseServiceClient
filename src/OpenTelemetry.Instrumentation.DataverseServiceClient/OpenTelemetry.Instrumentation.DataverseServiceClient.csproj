@@ -41,7 +41,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.22"/>
+    <!-- v1.1.16 Added new properties to Organization detail to report Schema Type and Deployment Type -->
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="[1.1.16,)"/>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     <PackageReference Include="MinVer" Version="5.0.0" PrivateAssets="All"/>
     <PackageReference Include="OpenTelemetry" Version="1.9.0" />

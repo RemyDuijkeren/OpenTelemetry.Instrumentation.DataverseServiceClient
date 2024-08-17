@@ -16,7 +16,7 @@ public static class ServiceClientExtensions
 
     /// <summary>Creates and starts a new <see cref="Activity"/> object if there is any listener to the Activity events, returns null otherwise.</summary>
     /// <param name="service">The <see cref="IOrganizationService"/> to start the Activity for</param>
-    /// <param name="entityName">The logical name of the entity we operating on</param>
+    /// <param name="entityName">The logical name of the entity we're operating on</param>
     /// <param name="statement">The optional statement associated with the activity.</param>
     /// <param name="operation">The optional name of the operation associated with the activity. If not specified, the caller's member name is used.</param>
     /// <returns>An <see cref="Activity"/> instance representing the started activity. Returns null if the activity could not be started.</returns>
@@ -26,8 +26,8 @@ public static class ServiceClientExtensions
 
     /// <summary>Creates and starts a new <see cref="Activity"/> object if there is any listener to the Activity events, returns null otherwise.</summary>
     /// <param name="service">The <see cref="IOrganizationService"/> to start the Activity for</param>
-    /// <param name="entityName">The logical name of the entity we operating on</param>
-    /// <param name="entityId">The id of the entity we operating on</param>
+    /// <param name="entityName">The logical name of the entity we're operating on</param>
+    /// <param name="entityId">The id of the entity we're operating on</param>
     /// <param name="statement">The optional statement associated with the activity.</param>
     /// <param name="operation">The optional name of the operation associated with the activity. If not specified, the caller's member name is used.</param>
     /// <returns>An <see cref="Activity"/> instance representing the started activity. Returns null if the activity could not be started.</returns>
