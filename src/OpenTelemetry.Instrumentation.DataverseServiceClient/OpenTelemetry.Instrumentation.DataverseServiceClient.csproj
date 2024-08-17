@@ -44,16 +44,11 @@
 
   <ItemGroup>
     <!-- v1.1.16 Added new properties to Organization detail to report Schema Type and Deployment Type -->
-    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="[1.1.16,)"/>
+    <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="[1.1.16,2.0)"/>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     <PackageReference Include="MinVer" Version="5.0.0" PrivateAssets="All"/>
-    <PackageReference Include="OpenTelemetry" Version="1.9.0" />
+    <PackageReference Include="OpenTelemetry" Version="[1.4,2.0)" />
   </ItemGroup>
-
-<!--  <ItemGroup>-->
-<!--    &lt;!&ndash; Add InternalsVisibleTo to src projects to enable testing internal methods https://www.meziantou.net/declaring-internalsvisibleto-in-the-csproj.htm &ndash;&gt;-->
-<!--    <InternalsVisibleTo Include="$(AssemblyName).Tests"/>-->
-<!--  </ItemGroup>-->
 
   <ItemGroup>
     <None Include="../../docs/opentelemetry-icon-color.png" Pack="true" PackagePath="\" Visible="false"/>
