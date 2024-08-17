@@ -2,7 +2,7 @@
 
 /// <summary>Provides constants for activity tags related to Dataverse operations and exceptions.</summary>
 /// <remarks>Based on <see href="https://github.com/open-telemetry/semantic-conventions/blob/main/docs/database/database-spans.md"/></remarks>
-static class ActivityTags
+public static class ActivityTags
 {
     // Connection-level attributes
     public const string ServerAddress = "server.address"; // "shopdb.example.com"

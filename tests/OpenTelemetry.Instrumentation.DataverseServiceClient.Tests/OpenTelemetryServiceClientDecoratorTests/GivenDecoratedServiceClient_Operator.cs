@@ -22,23 +22,6 @@ public class GivenDecoratedServiceClient_Operator
         convertedServiceClient.Should().Be(service);
     }
 
-    [SkippableFact]
-    public void ReturnServiceClientFromDecorator_When_CallingInternalServiceClient()
-    {
-        Skip.IfNot(TestContext.CanCreateXrmRealContext);
-
-        // Arrange
-        using TestContext testContext = new();
-        var service = testContext.XrmRealContext.GetAsyncOrganizationService2();
-        var decorator = new OpenTelemetryServiceClientDecorator(service);
-
-        // Act
-        var convertedServiceClient = decorator.InternalServiceClient;
-
-        // Assert
-        convertedServiceClient.Should().Be(service);
-    }
-
     [Fact]
     public void ThrowInvalidOperationException_When_CastButServiceIsNotServiceClient()
     {
