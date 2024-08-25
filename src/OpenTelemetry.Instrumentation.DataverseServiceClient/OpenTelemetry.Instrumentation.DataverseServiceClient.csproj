@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net462;net472;net48</TargetFrameworks>
+    <TargetFrameworks>net6.0;net462;net472;net48;</TargetFrameworks>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <RestoreLockedMode Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</RestoreLockedMode>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     <SignAssembly>true</SignAssembly>
@@ -47,7 +48,7 @@
     <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="[1.1.16,2.0)"/>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     <PackageReference Include="MinVer" Version="5.0.0" PrivateAssets="All"/>
-    <PackageReference Include="OpenTelemetry" Version="[1.4,2.0)" />
+    <PackageReference Include="OpenTelemetry" Version="[1.4,2.0)"/>
   </ItemGroup>
 
   <ItemGroup>

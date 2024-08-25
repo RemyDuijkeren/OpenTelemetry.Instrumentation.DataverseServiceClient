@@ -140,6 +140,7 @@ public class GivenNewEntity_WhenCreate
             ServiceCallMode.Async => decorator.CreateAsync(entity),
             ServiceCallMode.AsyncWithCancellationToken when returnCreatedEntity => decorator.CreateAndReturnAsync(entity, new CancellationToken()),
             ServiceCallMode.AsyncWithCancellationToken => decorator.CreateAsync(entity, new CancellationToken()),
+            _ => Task.CompletedTask // Should not happen
         };
 
         // Assert
@@ -158,6 +159,7 @@ public class GivenNewEntity_WhenCreate
             ServiceCallMode.Sync => _decorator.Create(_entity),
             ServiceCallMode.Async => await _decorator.CreateAsync(_entity),
             ServiceCallMode.AsyncWithCancellationToken => await _decorator.CreateAsync(_entity, new CancellationToken()),
+            _ => throw new FluentAssertions.Execution.AssertionFailedException($"Unexpected ServiceCallMode: {serviceCallMode}")
         };
 
         // Assert
@@ -217,7 +219,8 @@ public class GivenNewEntity_WhenCreate
             ServiceCallMode.Sync => "Create",
             ServiceCallMode.Async => "CreateAsync",
             ServiceCallMode.AsyncWithCancellationToken when returnCreatedEntity => "CreateAndReturnAsync",
-            ServiceCallMode.AsyncWithCancellationToken => "CreateAsync"
+            ServiceCallMode.AsyncWithCancellationToken => "CreateAsync",
+            _ => throw new FluentAssertions.Execution.AssertionFailedException($"Unexpected ServiceCallMode: {serviceCallMode}")
         };
 
         _expectedTags[ActivityTags.DbOperation] = operationName;

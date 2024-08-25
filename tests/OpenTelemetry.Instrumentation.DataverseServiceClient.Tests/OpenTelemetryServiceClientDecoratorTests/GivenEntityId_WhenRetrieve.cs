@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using System.ServiceModel;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.PowerPlatform.Dataverse.Client;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
@@ -44,6 +44,7 @@ public class GivenEntityId_WhenRetrieve
     [InlineData(ServiceCallMode.AsyncWithCancellationToken, "TestEntity")]
     [InlineData(ServiceCallMode.AsyncWithCancellationToken, "")]
     [InlineData(ServiceCallMode.AsyncWithCancellationToken, null)]
+    [SuppressMessage("Usage", "xUnit1012:Null should only be used for nullable parameters", Justification="Forcing null for test")]
     public async Task CallRetrieveOnDecoratedService(ServiceCallMode serviceCallMode, string entityName)
     {
         switch (serviceCallMode)
@@ -82,25 +83,17 @@ public class GivenEntityId_WhenRetrieve
         var service = testContext.XrmRealContext.GetAsyncOrganizationService2();
         var decorator = new OpenTelemetryServiceClientDecorator(service);
 
-        if (serviceCallMode == ServiceCallMode.Sync)
+        // Act
+        Func<Task> act = () => serviceCallMode switch
         {
-            // Act
-            Action act1 = () => decorator.Retrieve(null!, Guid.NewGuid(), new ColumnSet());
-            // Assert
-            act1.Should().Throw<NullReferenceException>();
-        }
-        else
-        {
-            // Act
-            Func<Task> act2 = () => serviceCallMode switch
-            {
-                ServiceCallMode.Async => decorator.RetrieveAsync(null!, Guid.NewGuid(), new ColumnSet()),
-                ServiceCallMode.AsyncWithCancellationToken => decorator.RetrieveAsync(null!, Guid.NewGuid(), new ColumnSet(), new CancellationToken()),
-            };
+            ServiceCallMode.Sync => Task.FromResult(decorator.Retrieve(null!, Guid.NewGuid(), new ColumnSet())),
+            ServiceCallMode.Async => decorator.RetrieveAsync(null!, Guid.NewGuid(), new ColumnSet()),
+            ServiceCallMode.AsyncWithCancellationToken => decorator.RetrieveAsync(null!, Guid.NewGuid(), new ColumnSet(), new CancellationToken()),
+            _ => throw new FluentAssertions.Execution.AssertionFailedException($"Unexpected ServiceCallMode: {serviceCallMode}")
+        };
 
-            // Assert
-            await act2.Should().ThrowAsync<NullReferenceException>();
-        }
+        // Assert
+        await act.Should().ThrowAsync<NullReferenceException>();
     }
 
     [Theory]
@@ -141,7 +134,8 @@ public class GivenEntityId_WhenRetrieve
         {
             ServiceCallMode.Sync => "Retrieve",
             ServiceCallMode.Async => "RetrieveAsync",
-            ServiceCallMode.AsyncWithCancellationToken => "RetrieveAsync"
+            ServiceCallMode.AsyncWithCancellationToken => "RetrieveAsync",
+            _ => throw new FluentAssertions.Execution.AssertionFailedException($"Unexpected ServiceCallMode: {serviceCallMode}")
         };
 
         _expectedTags[ActivityTags.DbOperation] = operationName;

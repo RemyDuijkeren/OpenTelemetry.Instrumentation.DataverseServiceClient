@@ -61,6 +61,9 @@ Optional create the `OpenTelemetryServiceClientDecorator` manually by passing it
 using Microsoft.PowerPlatform.Dataverse.Client;
 using OpenTelemetry.Instrumentation.DataverseServiceClient;
 
+// Add 'OpenTelemetry.Instrumentation.DataverseServiceClient' as source
+
+// Create ServiceClient and wrap it into OpenTelemetryServiceClientDecorator
 var serviceClient = new ServiceClient(new ConnectionOptions { /* your config */ } );
 IOrganizationServiceAsync2 decoratedServiceClient = new OpenTelemetryServiceClientDecorator(serviceClient);
 

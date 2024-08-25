@@ -1,7 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
+  <PropertyGroup>
+    <!-- NU1504 Duplicate 'PackageReference' items found.-->
+    <NoWarn>$(NoWarn);NU1504</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
+    <!-- We want to code using the latest version, but target the Project against a lower version for NuGet compatability  -->
     <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.32"/>
-    <PackageReference Include="OpenTelemetry" Version="1.9.0" />
+    <PackageReference Include="OpenTelemetry" Version="1.9.0"/>
   </ItemGroup>
 </Project>

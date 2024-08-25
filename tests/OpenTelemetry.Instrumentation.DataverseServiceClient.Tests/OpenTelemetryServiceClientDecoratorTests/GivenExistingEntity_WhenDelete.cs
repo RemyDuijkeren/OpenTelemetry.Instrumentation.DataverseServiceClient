@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.ServiceModel;
 using Microsoft.PowerPlatform.Dataverse.Client;
 using Microsoft.Xrm.Sdk;
@@ -41,6 +42,7 @@ public class GivenExistingEntity_WhenDelete
     [InlineData(ServiceCallMode.AsyncWithCancellationToken, "TestEntity")]
     [InlineData(ServiceCallMode.AsyncWithCancellationToken, "")]
     [InlineData(ServiceCallMode.AsyncWithCancellationToken, null)]
+    [SuppressMessage("Usage", "xUnit1012:Null should only be used for nullable parameters", Justification ="Forcing null for test")]
     public async Task CallDeleteOnDecoratedService(ServiceCallMode serviceCallMode, string entityName)
     {
         switch (serviceCallMode)
@@ -79,25 +81,17 @@ public class GivenExistingEntity_WhenDelete
         var service = testContext.XrmRealContext.GetAsyncOrganizationService2();
         var decorator = new OpenTelemetryServiceClientDecorator(service);
 
-        if (serviceCallMode == ServiceCallMode.Sync)
+        // Act
+        Func<Task> act = () => serviceCallMode switch
         {
-            // Act
-            Action act1 = () => decorator.Delete(null!, Guid.NewGuid());
-            // Assert
-            act1.Should().Throw<FaultException<OrganizationServiceFault>>().WithMessage("Required member 'LogicalName' missing for field 'Target'");
-        }
-        else
-        {
-            // Act
-            Func<Task> act2 = () => serviceCallMode switch
-            {
-                ServiceCallMode.Async => decorator.DeleteAsync(null!, Guid.NewGuid()),
-                ServiceCallMode.AsyncWithCancellationToken => decorator.DeleteAsync(null!, Guid.NewGuid(), new CancellationToken()),
-            };
+            ServiceCallMode.Sync => Task.Run(() => decorator.Delete(null!, Guid.NewGuid())),
+            ServiceCallMode.Async => decorator.DeleteAsync(null!, Guid.NewGuid()),
+            ServiceCallMode.AsyncWithCancellationToken => decorator.DeleteAsync(null!, Guid.NewGuid(), new CancellationToken()),
+            _ => throw new FluentAssertions.Execution.AssertionFailedException($"Unexpected ServiceCallMode: {serviceCallMode}")
+        };
 
-            // Assert
-            await act2.Should().ThrowAsync<FaultException<OrganizationServiceFault>>().WithMessage("Required member 'LogicalName' missing for field 'Target'");
-        }
+        // Assert
+        await act.Should().ThrowAsync<FaultException<OrganizationServiceFault>>().WithMessage("Required member 'LogicalName' missing for field 'Target'");
     }
 
     [Theory]
@@ -138,7 +132,8 @@ public class GivenExistingEntity_WhenDelete
         {
             ServiceCallMode.Sync => "Delete",
             ServiceCallMode.Async => "DeleteAsync",
-            ServiceCallMode.AsyncWithCancellationToken => "DeleteAsync"
+            ServiceCallMode.AsyncWithCancellationToken => "DeleteAsync",
+            _ => throw new FluentAssertions.Execution.AssertionFailedException($"Unexpected ServiceCallMode: {serviceCallMode}")
         };
 
         _expectedTags[ActivityTags.DbOperation] = operationName;

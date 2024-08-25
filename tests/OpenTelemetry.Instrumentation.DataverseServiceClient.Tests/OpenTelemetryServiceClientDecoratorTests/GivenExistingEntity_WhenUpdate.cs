@@ -110,25 +110,17 @@ public class GivenExistingEntity_WhenUpdate
         var decorator = new OpenTelemetryServiceClientDecorator(service);
         Entity entity = null!;
 
-        if (serviceCallMode == ServiceCallMode.Sync)
+        // Act
+        Func<Task> act2 = () => serviceCallMode switch
         {
-            // Act
-            Action act1 = () => decorator.Update(entity);
-            // Assert
-            act1.Should().Throw<FaultException<OrganizationServiceFault>>().WithMessage("Required field 'Target' is missing");
-        }
-        else
-        {
-            // Act
-            Func<Task> act2 = () => serviceCallMode switch
-            {
-                ServiceCallMode.Async => decorator.UpdateAsync(entity),
-                ServiceCallMode.AsyncWithCancellationToken => decorator.UpdateAsync(entity, new CancellationToken()),
-            };
+            ServiceCallMode.Sync => Task.Run(() => decorator.Update(entity)),
+            ServiceCallMode.Async => decorator.UpdateAsync(entity),
+            ServiceCallMode.AsyncWithCancellationToken => decorator.UpdateAsync(entity, new CancellationToken()),
+            _ => throw new FluentAssertions.Execution.AssertionFailedException($"Unexpected ServiceCallMode: {serviceCallMode}")
+        };
 
-            // Assert
-            await act2.Should().ThrowAsync<FaultException<OrganizationServiceFault>>().WithMessage("Required field 'Target' is missing");
-        }
+        // Assert
+        await act2.Should().ThrowAsync<FaultException<OrganizationServiceFault>>().WithMessage("Required field 'Target' is missing");
     }
 
     [Theory]
@@ -169,7 +161,8 @@ public class GivenExistingEntity_WhenUpdate
         {
             ServiceCallMode.Sync => "Update",
             ServiceCallMode.Async => "UpdateAsync",
-            ServiceCallMode.AsyncWithCancellationToken => "UpdateAsync"
+            ServiceCallMode.AsyncWithCancellationToken => "UpdateAsync",
+            _ => throw new FluentAssertions.Execution.AssertionFailedException($"Unexpected ServiceCallMode: {serviceCallMode}")
         };
 
         _expectedTags[ActivityTags.DbOperation] = operationName;
