@@ -6,19 +6,52 @@ namespace OpenTelemetry.Instrumentation.DataverseServiceClient;
 
 public static class EntityExtensions
 {
-    public static string ToInsertStatement(this Entity entity) =>
-        entity is null || entity.Attributes.Count == 0
-            ? string.Empty
-            : $"INSERT INTO {entity.LogicalName.ToLower()} ({string.Join(", ", entity.Attributes.ToSqlColumnValues().Keys)}) VALUES ({string.Join(", ", entity.Attributes.ToSqlColumnValues().Values)})";
+    public static string ToInsertStatement(this Entity entity)
+    {
+        if (entity is null || entity.Attributes.Count == 0)
+        {
+            return string.Empty;
+        }
 
-    public static string ToUpdateStatement(this Entity entity) =>
-        entity is null || entity.Attributes.Count == 0
-            ? string.Empty
-            : $"UPDATE {entity.LogicalName.ToLower()} SET {string.Join(", ", entity.Attributes.ToSqlColumnValues().Select(a => $"{a.Key} = {a.Value}"))} WHERE {entity.LogicalName.ToLower()}id = '{entity.Id}'";
+        var sqlColumnValues = entity.Attributes.ToSqlColumnValues();
+        var columns = string.Join(", ", sqlColumnValues.Keys);
+        var values = string.Join(", ", sqlColumnValues.Values);
+
+        return $"INSERT INTO {entity.LogicalName.ToLower()} ({columns}) VALUES ({values})";
+    }
+
+    public static string ToUpdateStatement(this Entity entity)
+    {
+        if (entity is null || entity.Attributes.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        var sqlColumnValues = entity.Attributes.ToSqlColumnValues();
+        var setClauses = string.Join(", ", sqlColumnValues.Select(a => $"{a.Key} = {a.Value}"));
+
+        return $"UPDATE {entity.LogicalName.ToLower()} SET {setClauses} WHERE {entity.LogicalName.ToLower()}id = '{entity.Id}'";
+    }
+
+    public static string ToSelectStatement(this EntityReference entityReference, ColumnSet columnSet)
+    {
+        var entityId = $"{entityReference.LogicalName?.ToLower()}id";
+        var columns = new[] { entityId }.Concat(columnSet.ToSqlColumns());
+        var selectColumns = string.Join(", ", columns);
+
+        return $"SELECT {selectColumns} FROM {entityReference.LogicalName?.ToLower()} WHERE {entityId} = '{entityReference.Id}'";
+    }
+
+    public static string ToDeleteStatement(this EntityReference entityReference)
+    {
+        var entityId = $"{entityReference.LogicalName?.ToLower()}id";
+
+        return $"DELETE FROM {entityReference.LogicalName?.ToLower()} WHERE {entityId} = '{entityReference.Id}'";
+    }
 
     public static ICollection<string> ToSqlColumns(this ColumnSet columnSet) =>
         columnSet.AllColumns
-            ? new List<string> { "*" }
+            ? new[] { "*" }
             : columnSet.Columns.Select(c => c.ToLower()).ToList();
 
     static IDictionary<string, string> ToSqlColumnValues(this AttributeCollection attributes) =>

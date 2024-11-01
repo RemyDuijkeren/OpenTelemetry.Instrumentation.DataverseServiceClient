@@ -30,7 +30,7 @@ public class GivenEntityId_WhenRetrieve
             { ActivityTags.DbOperation, "RetrieveAsync" },
             { ActivityTags.DbSqlTable, _entityRef.LogicalName },
             { ActivityTags.DataverseEntityId, _entityRef.Id.ToString() },
-            { ActivityTags.DbStatement, $"SELECT {string.Join(", ", _columnSet.ToSqlColumns())} FROM testentity WHERE testentityid = '{_entityRef.Id}'" }
+            { ActivityTags.DbStatement, $"SELECT testentityid, {string.Join(", ", _columnSet.ToSqlColumns())} FROM testentity WHERE testentityid = '{_entityRef.Id}'" }
         };
     }
 

@@ -28,8 +28,7 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Guid Create(Entity entity)
     {
-        using Activity? activity = Service.StartDataverseActivity(entity);
-        activity?.SetTag(ActivityTags.DbStatement, entity?.ToInsertStatement());
+        using Activity? activity = Service.StartDataverseActivity(entity, entity?.ToInsertStatement());
 
         var id = Service.Create(entity);
         activity?.SetTag(ActivityTags.DataverseEntityId, id.ToString());
@@ -40,9 +39,8 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Entity Retrieve(string entityName, Guid id, ColumnSet columnSet)
     {
-        using Activity? activity = Service.StartDataverseActivity(entityName, id);
-        activity?.SetTag(ActivityTags.DataverseEntityId, id.ToString());
-        activity?.SetTag(ActivityTags.DbStatement, $"SELECT {string.Join(", ", columnSet?.ToSqlColumns() ?? Array.Empty<string>())} FROM {entityName?.ToLower()} WHERE {entityName?.ToLower()}id = '{id}'");
+        EntityReference entityReference = new(entityName, id);
+        using Activity? activity = Service.StartDataverseActivity(entityName, id, entityReference.ToSelectStatement(columnSet));
 
         return Service.Retrieve(entityName, id, columnSet);
     }
@@ -50,9 +48,7 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public void Update(Entity entity)
     {
-        using Activity? activity = Service.StartDataverseActivity(entity);
-        activity?.SetTag(ActivityTags.DbStatement, entity?.ToUpdateStatement());
-        activity?.SetTag(ActivityTags.DataverseEntityId, entity?.Id.ToString());
+        using Activity? activity = Service.StartDataverseActivity(entity, entity?.ToUpdateStatement());
 
         Service.Update(entity);
     }
@@ -60,9 +56,8 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public void Delete(string entityName, Guid id)
     {
-        using Activity? activity = Service.StartDataverseActivity(entityName, id);
-        activity?.SetTag(ActivityTags.DbStatement, $"DELETE FROM {entityName?.ToLower()} WHERE {entityName?.ToLower()}id = '{id}'");
-        activity?.SetTag(ActivityTags.DataverseEntityId, id.ToString());
+        EntityReference entityReference = new(entityName, id);
+        using Activity? activity = Service.StartDataverseActivity(entityName, id, entityReference.ToDeleteStatement());
 
         Service.Delete(entityName, id);
     }
@@ -139,8 +134,7 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public async Task<Guid> CreateAsync(Entity entity)
     {
-        using Activity? activity = ServiceAsync.StartDataverseActivity(entity);
-        activity?.SetTag(ActivityTags.DbStatement, entity?.ToInsertStatement());
+        using Activity? activity = ServiceAsync.StartDataverseActivity(entity, entity?.ToInsertStatement());
 
         var id = await ServiceAsync.CreateAsync(entity);
         activity?.SetTag(ActivityTags.DataverseEntityId, id.ToString());
@@ -151,9 +145,8 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Task<Entity> RetrieveAsync(string entityName, Guid id, ColumnSet columnSet)
     {
-        using Activity? activity = ServiceAsync.StartDataverseActivity(entityName, id);
-        activity?.SetTag(ActivityTags.DataverseEntityId, id.ToString());
-        activity?.SetTag(ActivityTags.DbStatement, $"SELECT {string.Join(", ", columnSet?.ToSqlColumns() ?? Array.Empty<string>())} FROM {entityName?.ToLower()} WHERE {entityName?.ToLower()}id = '{id}'");
+        EntityReference entityReference = new(entityName, id);
+        using Activity? activity = ServiceAsync.StartDataverseActivity(entityName, id, entityReference.ToSelectStatement(columnSet));
 
         return ServiceAsync.RetrieveAsync(entityName, id, columnSet);
     }
@@ -161,9 +154,7 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Task UpdateAsync(Entity entity)
     {
-        using Activity? activity = ServiceAsync.StartDataverseActivity(entity);
-        activity?.SetTag(ActivityTags.DbStatement, entity?.ToUpdateStatement());
-        activity?.SetTag(ActivityTags.DataverseEntityId, entity?.Id.ToString());
+        using Activity? activity = ServiceAsync.StartDataverseActivity(entity, entity?.ToUpdateStatement());
 
         return ServiceAsync.UpdateAsync(entity);
     }
@@ -171,9 +162,8 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Task DeleteAsync(string entityName, Guid id)
     {
-        using Activity? activity = ServiceAsync.StartDataverseActivity(entityName, id);
-        activity?.SetTag(ActivityTags.DbStatement, $"DELETE FROM {entityName?.ToLower()} WHERE {entityName?.ToLower()}id = '{id}'");
-        activity?.SetTag(ActivityTags.DataverseEntityId, id.ToString());
+        EntityReference entityReference = new(entityName, id);
+        using Activity? activity = ServiceAsync.StartDataverseActivity(entityName, id, entityReference.ToDeleteStatement());
 
         return ServiceAsync.DeleteAsync(entityName, id);
     }
@@ -256,8 +246,7 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public async Task<Guid> CreateAsync(Entity entity, CancellationToken cancellationToken)
     {
-        using Activity? activity = ServiceAsync2.StartDataverseActivity(entity);
-        activity?.SetTag(ActivityTags.DbStatement, entity?.ToInsertStatement());
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(entity, entity?.ToInsertStatement());
 
         var id = await ServiceAsync2.CreateAsync(entity, cancellationToken);
         activity?.SetTag(ActivityTags.DataverseEntityId, id.ToString());
@@ -268,8 +257,7 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public async Task<Entity> CreateAndReturnAsync(Entity entity, CancellationToken cancellationToken)
     {
-        using Activity? activity = ServiceAsync2.StartDataverseActivity(entity);
-        activity?.SetTag(ActivityTags.DbStatement, entity?.ToInsertStatement());
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(entity, entity?.ToInsertStatement());
 
         Entity createdEntity = await ServiceAsync2.CreateAndReturnAsync(entity, cancellationToken);
         activity?.SetTag(ActivityTags.DataverseEntityId, createdEntity.Id.ToString());
@@ -280,9 +268,8 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Task DeleteAsync(string entityName, Guid id, CancellationToken cancellationToken)
     {
-        using Activity? activity = ServiceAsync2.StartDataverseActivity(entityName, id);
-        activity?.SetTag(ActivityTags.DbStatement, $"DELETE FROM {entityName?.ToLower()} WHERE {entityName?.ToLower()}id = '{id}'");
-        activity?.SetTag(ActivityTags.DataverseEntityId, id.ToString());
+        EntityReference entityReference = new(entityName, id);
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(entityName, id, entityReference.ToDeleteStatement());
 
         return ServiceAsync2.DeleteAsync(entityName, id, cancellationToken);
     }
@@ -326,9 +313,8 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Task<Entity> RetrieveAsync(string entityName, Guid id, ColumnSet columnSet, CancellationToken cancellationToken)
     {
-        using Activity? activity = ServiceAsync2.StartDataverseActivity(entityName, id);
-        activity?.SetTag(ActivityTags.DataverseEntityId, id.ToString());
-        activity?.SetTag(ActivityTags.DbStatement, $"SELECT {string.Join(", ", columnSet?.ToSqlColumns() ?? Array.Empty<string>())} FROM {entityName?.ToLower()} WHERE {entityName?.ToLower()}id = '{id}'");
+        EntityReference entityReference = new(entityName, id);
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(entityName, id, entityReference.ToSelectStatement(columnSet));
 
         return ServiceAsync2.RetrieveAsync(entityName, id, columnSet, cancellationToken);
     }
@@ -361,9 +347,7 @@ public class OpenTelemetryServiceClientDecorator : IOrganizationServiceAsync2
     /// <inheritdoc />
     public Task UpdateAsync(Entity entity, CancellationToken cancellationToken)
     {
-        using Activity? activity = ServiceAsync2.StartDataverseActivity(entity);
-        activity?.SetTag(ActivityTags.DbStatement, entity?.ToUpdateStatement());
-        activity?.SetTag(ActivityTags.DataverseEntityId, entity?.Id.ToString());
+        using Activity? activity = ServiceAsync2.StartDataverseActivity(entity, entity?.ToUpdateStatement());
 
         return ServiceAsync2.UpdateAsync(entity, cancellationToken);
     }
