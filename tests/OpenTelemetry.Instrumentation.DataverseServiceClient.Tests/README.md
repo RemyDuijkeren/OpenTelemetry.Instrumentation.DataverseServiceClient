@@ -21,17 +21,26 @@ brittle tests.
 
 ### Test naming
 
-We follow the _Should_ExpectedBehavior_When_StateUnderTest_ pattern for naming our tests. This pattern is inspired by
-the [BDD](https://en.wikipedia.org/wiki/Behavior-driven_development) (Behavior Driven Development) style of writing.
+We follow the [Given-When_Then](https://www.agilealliance.org/glossary/given-when-then/) style of writing acceptance
+criteria for tests.
 
-We remove the _Should_ prefix, because it's redundant. You can include the method name under test at the
-beginning at the method name to group the tests (try not to because when the method changes, you need to change the
-tests). The test method name should be a sentence that reads. This will result in a test methods name like below:.
+Where generally:
+- **Given** part in the class names
+- **When** and **Then** in the method names
+
+#### Methods names
+
+Method names should capture the **When** and **Then**, like **When[PreCondition(s)]_Then[ExpectedBehvavior]**, but we flip
+this into **Then[ExpectedBehvavior]_When[PreCondition(s)]**. We then remove the _Then_ prefix, because it's redundant.
+
+Optionally you can include the method name under test at the beginning at the method name to group the tests (try not to
+because when the method changes, you need to change the tests). The test method name should be a sentence that reads.
+
+This will result in a test methods name like below:.
 
     (MethodNameUnderTest_)[ExpectedBehavior]_When_[PreCondition(s)]
 
     examples:
-    ShouldThrowException_When_AgeLessThan18 // not prefered
     ThrowException_When_AgeLessThan18
     ReturnContact_When_ContactIdExists
     ThrowArgumentException_When_ContactIdIsNullOrWhitespace
@@ -40,10 +49,12 @@ tests). The test method name should be a sentence that reads. This will result i
     SumTwoNumbers_When_NumbersArePositive
     SumTwoNumbers // omit the When_ part if there are no preconditions or only one precondition
 
-For class names we use the below naming convention. Here the class name is the SUT (System-Under-Test), often the
-class under test (but it can differ if we want to test an explicit behavior like an extension method). The method name
-under test can be added to the class name, if the number of tests methods is to many. The group even more we can add the
-main preconditions to the class name, instead of the method name. Don`t add the Suffix _Test_ to the class name.
+### Class names
+For class names we use the below naming convention. Class names have the _Given_ part in BDD style, the context.
+Here the class name is the SUT (System-Under-Test), often the class under test (but it can differ if we want to test an
+explicit behavior like an extension method). The method name under test can also be added to the class name, if the
+number of tests methods is to many. The group even more we can add the main preconditions to the class name, instead of
+the method name. Don`t add the Suffix _Test_ to the class name.
 
     [ClassNameUnderTest](_[MethodNameUnderTest])(_When_[Main PreCondition(s)])
 
@@ -73,17 +84,17 @@ We follow the Arrange, Act, Assert (AAA) pattern for structuring our tests. This
     [Fact]
     public void ReturnsContact_WhenContactIdExists()
     {
-        // arrange
+        // Arrange
         var contactId = Guid.NewGuid();
         var contact = new Contact { Id = contactId };
         var contactRepository = Substitute.For<IContactRepository>();
         contactRepository.GetById(contactId).Returns(contact);
         var sut = new ContactService(contactRepository);
 
-        // act
+        // Act
         var result = sut.GetContact(contactId);
 
-        // assert
+        // Assert
         Assert.Equal(contact, result);
     }
 ```
@@ -96,13 +107,13 @@ the calls, because it's input for the System Under Test (SUT). We are only inter
 Using [NSubstitue](https://nsubstitute.github.io/) (as our mocking framework) we can create a stub like so:
 
 ```c#
-    // arrange
+    // Arrange
     var stubSomeThing = Substitute.For<ISomeThing>();
     stubSomeThing.Execute(Arg.Any<string>).Returns("Hello world!");
 
-    // act
+    // Act
 
-    // assert
+    // Assert
     // We don't assert a stub!
 ```
 
@@ -113,13 +124,13 @@ changed.
 that our command happened, because this is the output of our System Under Test (SUT).
 
 ```c#
-    // arrange
+    // Arrange
     var mockSomeThing = Substitute.For<ISomeThing>();
     mockSomeThing.Execute(Arg.Any<string>).Returns("Hello world!");
 
-    // act
+    // Act
 
-    // assert
+    // Assert
     mockSomeThing.Recieved().Execute(); // this will verify that the mock has be called
 ```
 
