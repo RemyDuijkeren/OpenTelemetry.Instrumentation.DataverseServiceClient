@@ -50,13 +50,17 @@ This will result in a test methods name like below:.
     SumTwoNumbers // omit the When_ part if there are no preconditions or only one precondition
 
 ### Class names
-For class names we use the below naming convention. Class names have the _Given_ part in BDD style, the context.
-Here the class name is the SUT (System-Under-Test), often the class under test (but it can differ if we want to test an
-explicit behavior like an extension method). The method name under test can also be added to the class name, if the
-number of tests methods is to many. The group even more we can add the main preconditions to the class name, instead of
-the method name. Don`t add the Suffix _Test_ to the class name.
+Class names have the **Given** part in BDD style, the context, which would result in a class name as **Given[Context]**.
+Often we remove the _Given_ prefix, because it's redundant.
 
-    [ClassNameUnderTest](_[MethodNameUnderTest])(_When_[Main PreCondition(s)])
+Often the context is the SUT (System-Under-Test), often the class under test (but it can differ if we want to test an
+explicit behavior like an extension method). The method name under test can also be added to the class name, if the
+number of tests methods is to many.
+
+The group even more we can add the main preconditions to the class name, instead of the method name. Don`t add the
+suffix _Test_ to the class name.
+
+    (Given)[Context/ClassNameUnderTest](_[MethodNameUnderTest])(_When_[Main PreCondition(s)])
 
     examples:
     OpenTelemetryServiceClientDecorator

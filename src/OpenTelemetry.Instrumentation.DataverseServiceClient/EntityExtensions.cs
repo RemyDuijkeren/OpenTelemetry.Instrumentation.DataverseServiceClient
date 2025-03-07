@@ -36,7 +36,7 @@ public static class EntityExtensions
     public static string ToSelectStatement(this EntityReference entityReference, ColumnSet columnSet)
     {
         var entityId = $"{entityReference.LogicalName?.ToLower()}id";
-        var columns = new[] { entityId }.Concat(columnSet.ToSqlColumns());
+        var columns = columnSet.ToSqlColumns(entityId);
         var selectColumns = string.Join(", ", columns);
 
         return $"SELECT {selectColumns} FROM {entityReference.LogicalName?.ToLower()} WHERE {entityId} = '{entityReference.Id}'";
@@ -49,10 +49,15 @@ public static class EntityExtensions
         return $"DELETE FROM {entityReference.LogicalName?.ToLower()} WHERE {entityId} = '{entityReference.Id}'";
     }
 
-    public static ICollection<string> ToSqlColumns(this ColumnSet columnSet) =>
-        columnSet.AllColumns
-            ? new[] { "*" }
-            : columnSet.Columns.Select(c => c.ToLower()).ToList();
+    public static ICollection<string> ToSqlColumns(this ColumnSet columnSet, string? entityId = null)
+    {
+        if (columnSet.AllColumns || columnSet.Columns.Count == 0)
+            return new[] { "*" };
+
+        return entityId is null
+            ? columnSet.Columns.Select(c => c.ToLower()).ToList()
+            : new[] { entityId.ToLower() }.Concat(columnSet.Columns.Select(c => c.ToLower())).ToList();
+    }
 
     static IDictionary<string, string> ToSqlColumnValues(this AttributeCollection attributes) =>
         attributes.Select(attr => new KeyValuePair<string, string>(attr.Key.ToLower(),

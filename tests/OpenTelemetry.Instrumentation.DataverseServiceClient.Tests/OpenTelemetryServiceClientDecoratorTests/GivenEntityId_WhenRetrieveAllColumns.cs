@@ -7,7 +7,7 @@ using OpenTelemetry.Trace;
 
 namespace OpenTelemetry.Instrumentation.DataverseServiceClient.Tests;
 
-public class GivenEntityId_WhenRetrieve
+public class GivenEntityId_WhenRetrieveAllColumns
 {
     readonly EntityReference _entityRef;
     readonly ColumnSet _columnSet;
@@ -15,10 +15,10 @@ public class GivenEntityId_WhenRetrieve
     readonly OpenTelemetryServiceClientDecorator _decorator;
     readonly IDictionary<string, string?> _expectedTags;
 
-    public GivenEntityId_WhenRetrieve()
+    public GivenEntityId_WhenRetrieveAllColumns()
     {
         _entityRef = new EntityReference("TestEntity", Guid.NewGuid());
-        _columnSet = new ColumnSet("attribute1", "attribute2", "attribute3");
+        _columnSet = new ColumnSet();
 
         _mockService = Substitute.For<IOrganizationServiceAsync2>();
         _decorator = new OpenTelemetryServiceClientDecorator(_mockService);
@@ -30,7 +30,7 @@ public class GivenEntityId_WhenRetrieve
             { ActivityTags.DbOperation, "RetrieveAsync" },
             { ActivityTags.DbSqlTable, _entityRef.LogicalName },
             { ActivityTags.DataverseEntityId, _entityRef.Id.ToString() },
-            { ActivityTags.DbStatement, $"SELECT testentityid, attribute1, attribute2, attribute3 FROM testentity WHERE testentityid = '{_entityRef.Id}'" }
+            { ActivityTags.DbStatement, $"SELECT * FROM testentity WHERE testentityid = '{_entityRef.Id}'" }
         };
     }
 

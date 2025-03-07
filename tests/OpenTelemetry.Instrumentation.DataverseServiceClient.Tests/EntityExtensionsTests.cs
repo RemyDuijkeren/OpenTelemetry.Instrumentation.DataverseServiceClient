@@ -159,7 +159,20 @@ public class EntityExtensionsTests
     }
 
     [Fact]
-    public void ReturnsNoSqlColumns_WhenEmptyColumnSet()
+    public void ReturnsCorrectSqlColumns_WhenColumnSetWithColumnsAndEntityId()
+    {
+        // Arrange
+        var columnSet = new ColumnSet("Attribute1", "Attribute2", "Attribute3");
+
+        // Act
+        var result = columnSet.ToSqlColumns("EntityId");
+
+        // Assert
+        result.Should().BeEquivalentTo(["entityid", "attribute1", "attribute2", "attribute3"]);
+    }
+
+    [Fact]
+    public void ReturnsAllColumns_WhenEmptyColumnSet()
     {
         // Arrange
         var columnSet = new ColumnSet();
@@ -168,7 +181,20 @@ public class EntityExtensionsTests
         var result = columnSet.ToSqlColumns();
 
         // Assert
-        result.Should().BeEquivalentTo([]);
+        result.Should().BeEquivalentTo(["*"]);
+    }
+
+    [Fact]
+    public void ReturnsAllColumns_WhenEmptyColumnSetAndEntityId()
+    {
+        // Arrange
+        var columnSet = new ColumnSet();
+
+        // Act
+        var result = columnSet.ToSqlColumns("EntityId");
+
+        // Assert
+        result.Should().BeEquivalentTo(["*"]);
     }
 
     [Fact]
@@ -179,6 +205,19 @@ public class EntityExtensionsTests
 
         // Act
         var result = columnSet.ToSqlColumns();
+
+        // Assert
+        result.Should().BeEquivalentTo(["*"]);
+    }
+
+    [Fact]
+    public void ReturnsNoSqlColumns_WhenAllColumnSetAndEntityId()
+    {
+        // Arrange
+        var columnSet = new ColumnSet(true);
+
+        // Act
+        var result = columnSet.ToSqlColumns("EntityId");
 
         // Assert
         result.Should().BeEquivalentTo(["*"]);
