@@ -17,7 +17,7 @@ public class AddDataverseServiceClientInstrumentation
         tracerBuilder.AddDataverseServiceClientInstrumentation();
 
         // Assert
-        tracerBuilder.Received(1).AddSource(Arg.Is<string>(x =>  x == DataverseServiceClient.ServiceClientExtensions.DataverseTracer.Name));
+        tracerBuilder.Received(1).AddSource(Arg.Is<string>(x =>  x == ServiceClientExtensions.DataverseTracer.Name));
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class AddDataverseServiceClientInstrumentation
         // Assert
         var serviceProvider = services.BuildServiceProvider();
         var tracerProvider = serviceProvider.GetRequiredService<TracerProvider>();
-        var dataverseTracer = tracerProvider.GetTracer(DataverseServiceClient.ServiceClientExtensions.DataverseTracer.Name);
+        var dataverseTracer = tracerProvider.GetTracer(ServiceClientExtensions.DataverseTracer.Name);
 
         dataverseTracer.Should().NotBeNull();
     }

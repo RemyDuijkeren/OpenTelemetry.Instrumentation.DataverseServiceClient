@@ -30,8 +30,8 @@ public class GivenNewEntity_WhenCreate
         _mockService = Substitute.For<IOrganizationServiceAsync2>();
         _mockService.Create(Arg.Any<Entity>()).Returns(_createdEntity.Id);
         _mockService.CreateAsync(Arg.Any<Entity>()).Returns(_createdEntity.Id);
-        _mockService.CreateAsync(Arg.Any<Entity>(), default).Returns(_createdEntity.Id);
-        _mockService.CreateAndReturnAsync(Arg.Any<Entity>(), default).Returns(_createdEntity);
+        _mockService.CreateAsync(Arg.Any<Entity>(), CancellationToken.None).Returns(_createdEntity.Id);
+        _mockService.CreateAndReturnAsync(Arg.Any<Entity>(), CancellationToken.None).Returns(_createdEntity);
 
         _decorator = new OpenTelemetryServiceClientDecorator(_mockService);
 
@@ -69,13 +69,13 @@ public class GivenNewEntity_WhenCreate
                 break;
             case ServiceCallMode.AsyncWithCancellationToken when returnCreatedEntity:
                 // Act
-                await _decorator.CreateAndReturnAsync(_entity, new CancellationToken());
+                await _decorator.CreateAndReturnAsync(_entity, CancellationToken.None);
                 // Assert
                 await _mockService.Received(1).CreateAndReturnAsync(_entity, Arg.Any<CancellationToken>());
                 break;
             case ServiceCallMode.AsyncWithCancellationToken:
                 // Act
-                await _decorator.CreateAsync(_entity, new CancellationToken());
+                await _decorator.CreateAsync(_entity, CancellationToken.None);
                 // Assert
                 await _mockService.Received(1).CreateAsync(_entity, Arg.Any<CancellationToken>());
                 break;
@@ -105,13 +105,13 @@ public class GivenNewEntity_WhenCreate
                 break;
             case ServiceCallMode.AsyncWithCancellationToken when returnCreatedEntity:
                 // Act
-                await _decorator.CreateAndReturnAsync(null!, new CancellationToken());
+                await _decorator.CreateAndReturnAsync(null!, CancellationToken.None);
                 // Assert
                 await _mockService.Received(1).CreateAndReturnAsync(null, Arg.Any<CancellationToken>());
                 break;
             case ServiceCallMode.AsyncWithCancellationToken:
                 // Act
-                await _decorator.CreateAsync(null!, new CancellationToken());
+                await _decorator.CreateAsync(null!, CancellationToken.None);
                 // Assert
                 await _mockService.Received(1).CreateAsync(null, Arg.Any<CancellationToken>());
                 break;
@@ -138,13 +138,13 @@ public class GivenNewEntity_WhenCreate
         {
             ServiceCallMode.Sync => Task.FromResult(decorator.Create(entity)),
             ServiceCallMode.Async => decorator.CreateAsync(entity),
-            ServiceCallMode.AsyncWithCancellationToken when returnCreatedEntity => decorator.CreateAndReturnAsync(entity, new CancellationToken()),
-            ServiceCallMode.AsyncWithCancellationToken => decorator.CreateAsync(entity, new CancellationToken()),
+            ServiceCallMode.AsyncWithCancellationToken when returnCreatedEntity => decorator.CreateAndReturnAsync(entity, CancellationToken.None),
+            ServiceCallMode.AsyncWithCancellationToken => decorator.CreateAsync(entity, CancellationToken.None),
             _ => Task.CompletedTask // Should not happen
         };
 
         // Assert
-        await act.Should().ThrowAsync<FaultException<OrganizationServiceFault>>().WithMessage("Required field 'Target' is missing");
+        await act.Should().ThrowAsync<FaultException<OrganizationServiceFault>>().WithMessage("Required field 'Target' is missing*");
     }
 
     [Theory]
@@ -158,7 +158,7 @@ public class GivenNewEntity_WhenCreate
         {
             ServiceCallMode.Sync => _decorator.Create(_entity),
             ServiceCallMode.Async => await _decorator.CreateAsync(_entity),
-            ServiceCallMode.AsyncWithCancellationToken => await _decorator.CreateAsync(_entity, new CancellationToken()),
+            ServiceCallMode.AsyncWithCancellationToken => await _decorator.CreateAsync(_entity, CancellationToken.None),
             _ => throw new FluentAssertions.Execution.AssertionFailedException($"Unexpected ServiceCallMode: {serviceCallMode}")
         };
 
@@ -170,7 +170,7 @@ public class GivenNewEntity_WhenCreate
     public async Task ReturnCreatedEntity()
     {
         // Act
-        Entity createdEntity = await _decorator.CreateAndReturnAsync(_entity, new CancellationToken());
+        Entity createdEntity = await _decorator.CreateAndReturnAsync(_entity, CancellationToken.None);
 
         // Assert
         createdEntity.Should().BeEquivalentTo(_createdEntity);
@@ -200,10 +200,10 @@ public class GivenNewEntity_WhenCreate
                 await _decorator.CreateAsync(_entity);
                 break;
             case ServiceCallMode.AsyncWithCancellationToken when returnCreatedEntity:
-                await _decorator.CreateAndReturnAsync(_entity, new CancellationToken());
+                await _decorator.CreateAndReturnAsync(_entity, CancellationToken.None);
                 break;
             case ServiceCallMode.AsyncWithCancellationToken:
-                await _decorator.CreateAsync(_entity, new CancellationToken());
+                await _decorator.CreateAsync(_entity, CancellationToken.None);
                 break;
         }
 

@@ -56,7 +56,7 @@ public class StartDataverseActivity
         string? entityName = null;
 
         // Act
-        Action act = () => service.StartDataverseActivity(entityName, default, null, null);
+        Action act = () => service.StartDataverseActivity(entityName, Guid.Empty, null, null);
 
         // Assert
         act.Should().NotThrow();

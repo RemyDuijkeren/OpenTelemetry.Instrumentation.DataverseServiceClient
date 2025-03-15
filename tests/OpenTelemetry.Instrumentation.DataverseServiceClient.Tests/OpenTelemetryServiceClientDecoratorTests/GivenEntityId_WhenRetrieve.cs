@@ -63,7 +63,7 @@ public class GivenEntityId_WhenRetrieve
                 break;
             case ServiceCallMode.AsyncWithCancellationToken:
                 // Act
-                await _decorator.RetrieveAsync(entityName, _entityRef.Id, _columnSet, new CancellationToken());
+                await _decorator.RetrieveAsync(entityName, _entityRef.Id, _columnSet, CancellationToken.None);
                 // Assert
                 await _mockService.Received(1).RetrieveAsync(entityName, _entityRef.Id, _columnSet, Arg.Any<CancellationToken>());
                 break;
@@ -88,7 +88,7 @@ public class GivenEntityId_WhenRetrieve
         {
             ServiceCallMode.Sync => Task.FromResult(decorator.Retrieve(null!, Guid.NewGuid(), new ColumnSet())),
             ServiceCallMode.Async => decorator.RetrieveAsync(null!, Guid.NewGuid(), new ColumnSet()),
-            ServiceCallMode.AsyncWithCancellationToken => decorator.RetrieveAsync(null!, Guid.NewGuid(), new ColumnSet(), new CancellationToken()),
+            ServiceCallMode.AsyncWithCancellationToken => decorator.RetrieveAsync(null!, Guid.NewGuid(), new ColumnSet(), CancellationToken.None),
             _ => throw new FluentAssertions.Execution.AssertionFailedException($"Unexpected ServiceCallMode: {serviceCallMode}")
         };
 
@@ -119,7 +119,7 @@ public class GivenEntityId_WhenRetrieve
                 await _decorator.RetrieveAsync(_entityRef.LogicalName, _entityRef.Id, _columnSet);
                 break;
             case ServiceCallMode.AsyncWithCancellationToken:
-                await _decorator.RetrieveAsync(_entityRef.LogicalName, _entityRef.Id, _columnSet, new CancellationToken());
+                await _decorator.RetrieveAsync(_entityRef.LogicalName, _entityRef.Id, _columnSet, CancellationToken.None);
                 break;
         }
 

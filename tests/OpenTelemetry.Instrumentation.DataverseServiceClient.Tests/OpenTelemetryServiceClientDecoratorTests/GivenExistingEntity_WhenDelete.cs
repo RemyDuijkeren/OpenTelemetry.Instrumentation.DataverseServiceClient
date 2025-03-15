@@ -61,7 +61,7 @@ public class GivenExistingEntity_WhenDelete
                 break;
             case ServiceCallMode.AsyncWithCancellationToken:
                 // Act
-                await _decorator.DeleteAsync(entityName, _entityRef.Id, new CancellationToken());
+                await _decorator.DeleteAsync(entityName, _entityRef.Id, CancellationToken.None);
                 // Assert
                 await _mockService.Received(1).DeleteAsync(entityName, _entityRef.Id, Arg.Any<CancellationToken>());
                 break;
@@ -86,7 +86,7 @@ public class GivenExistingEntity_WhenDelete
         {
             ServiceCallMode.Sync => Task.Run(() => decorator.Delete(null!, Guid.NewGuid())),
             ServiceCallMode.Async => decorator.DeleteAsync(null!, Guid.NewGuid()),
-            ServiceCallMode.AsyncWithCancellationToken => decorator.DeleteAsync(null!, Guid.NewGuid(), new CancellationToken()),
+            ServiceCallMode.AsyncWithCancellationToken => decorator.DeleteAsync(null!, Guid.NewGuid(), CancellationToken.None),
             _ => throw new FluentAssertions.Execution.AssertionFailedException($"Unexpected ServiceCallMode: {serviceCallMode}")
         };
 
@@ -117,7 +117,7 @@ public class GivenExistingEntity_WhenDelete
                 await _decorator.DeleteAsync(_entityRef.LogicalName, _entityRef.Id);
                 break;
             case ServiceCallMode.AsyncWithCancellationToken:
-                await _decorator.DeleteAsync(_entityRef.LogicalName, _entityRef.Id, new CancellationToken());
+                await _decorator.DeleteAsync(_entityRef.LogicalName, _entityRef.Id, CancellationToken.None);
                 break;
         }
 

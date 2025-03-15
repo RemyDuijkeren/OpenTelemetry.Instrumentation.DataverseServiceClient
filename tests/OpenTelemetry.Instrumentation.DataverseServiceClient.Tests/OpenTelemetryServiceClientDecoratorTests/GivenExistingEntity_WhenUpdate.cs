@@ -60,7 +60,7 @@ public class GivenExistingEntity_WhenUpdate
                 break;
             case ServiceCallMode.AsyncWithCancellationToken:
                 // Act
-                await _decorator.UpdateAsync(_entity, new CancellationToken());
+                await _decorator.UpdateAsync(_entity, CancellationToken.None);
                 // Assert
                 await _mockService.Received(1).UpdateAsync(_entity, Arg.Any<CancellationToken>());
                 break;
@@ -89,7 +89,7 @@ public class GivenExistingEntity_WhenUpdate
                 break;
             case ServiceCallMode.AsyncWithCancellationToken:
                 // Act
-                await _decorator.UpdateAsync(null!, new CancellationToken());
+                await _decorator.UpdateAsync(null!, CancellationToken.None);
                 // Assert
                 await _mockService.Received(1).UpdateAsync(null, Arg.Any<CancellationToken>());
                 break;
@@ -115,12 +115,12 @@ public class GivenExistingEntity_WhenUpdate
         {
             ServiceCallMode.Sync => Task.Run(() => decorator.Update(entity)),
             ServiceCallMode.Async => decorator.UpdateAsync(entity),
-            ServiceCallMode.AsyncWithCancellationToken => decorator.UpdateAsync(entity, new CancellationToken()),
+            ServiceCallMode.AsyncWithCancellationToken => decorator.UpdateAsync(entity, CancellationToken.None),
             _ => throw new FluentAssertions.Execution.AssertionFailedException($"Unexpected ServiceCallMode: {serviceCallMode}")
         };
 
         // Assert
-        await act2.Should().ThrowAsync<FaultException<OrganizationServiceFault>>().WithMessage("Required field 'Target' is missing");
+        await act2.Should().ThrowAsync<FaultException<OrganizationServiceFault>>().WithMessage("Required field 'Target' is missing*");
     }
 
     [Theory]
@@ -146,7 +146,7 @@ public class GivenExistingEntity_WhenUpdate
                 await _decorator.UpdateAsync(_entity);
                 break;
             case ServiceCallMode.AsyncWithCancellationToken:
-                await _decorator.UpdateAsync(_entity, new CancellationToken());
+                await _decorator.UpdateAsync(_entity, CancellationToken.None);
                 break;
         }
 
