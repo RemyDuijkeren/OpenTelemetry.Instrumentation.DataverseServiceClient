@@ -6,11 +6,14 @@
 
 This is an [Instrumentation Library](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/glossary.md#instrumentation-library),
 which instruments [Dataverse ServiceClient](https://github.com/microsoft/PowerPlatform-DataverseServiceClient) and
-collect traces about incoming Dataverse requests.
+ collects traces about incoming Dataverse requests.
 
 This component is based on the [v1.24](https://github.com/open-telemetry/semantic-conventions/tree/v1.24.0/docs/database)
 of database semantic conventions. For details on the default set of attributes that
 are added, checkout [Traces](#traces) sections below.
+
+Application Insights example:
+![end-to-end-transaction-details.png](docs/end-to-end-transaction-details.png)
 
 ## Getting Started
 
@@ -75,7 +78,7 @@ var response = decoratedServiceClient.Execute(new WhoAmIRequest());
 
 Following list of attributes are added by default on activity.
 See [db-spans](https://github.com/open-telemetry/semantic-conventions/blob/v1.23.0/docs/database/database-spans.md)
-for more details about each individual attribute:
+for more details about each attribute:
 
 * `db.operation`
 * `db.sql.table`
@@ -90,6 +93,9 @@ for more details about each individual attribute:
 * `error.type`
 * `server.address`
 * `server.port`
+
+Application Insights example:
+![dependency-properties.png](docs/dependency-properties.png)
 
 ## Add Custom Activities
 
