@@ -8,6 +8,6 @@
   <ItemGroup>
     <!-- We want to code using the latest version, but target the Project against a lower version for NuGet compatability  -->
     <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.2.2"/>
-    <PackageReference Include="OpenTelemetry" Version="1.10.0"/>
+    <PackageReference Include="OpenTelemetry" Version="1.11.2"/>
   </ItemGroup>
 </Project>

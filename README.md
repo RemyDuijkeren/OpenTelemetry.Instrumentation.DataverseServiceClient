@@ -21,7 +21,7 @@ Application Insights example:
 
 Add a reference to
 the [`RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient`](https://www.nuget.org/packages/RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient)
-package. Also, add any other instrumentations & exporters you will need.
+package. Also, add any other instrumentation and exporters you will need.
 
 ```shell
 dotnet add package RemyDuijkeren.OpenTelemetry.Instrumentation.DataverseServiceClient
@@ -76,7 +76,7 @@ var response = decoratedServiceClient.Execute(new WhoAmIRequest());
 
 ## Traces
 
-Following list of attributes are added by default on activity.
+The following list of attributes is added by default on activity.
 See [db-spans](https://github.com/open-telemetry/semantic-conventions/blob/v1.23.0/docs/database/database-spans.md)
 for more details about each attribute:
 
@@ -95,6 +95,7 @@ for more details about each attribute:
 * `server.port`
 
 Application Insights example:
+
 ![dependency-properties.png](docs/dependency-properties.png)
 
 ## Add Custom Activities
@@ -126,7 +127,7 @@ public class DataverseHelper
 ```
 
 There are overloads for `StartDataverseActivity` to pass in the `Entity` or `EntityReference`, _statement_ and
-_operation_. By default the _operation_ is the name of the method that called `StartDataverseActivity`, in this example
+_operation_. By default, the _operation_ is the name of the method that called `StartDataverseActivity`, in this example
 `MyFirstHelperMethod`.
 
 ## References
