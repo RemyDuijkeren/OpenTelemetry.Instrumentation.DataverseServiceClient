@@ -79,16 +79,16 @@ public static class ServiceClientExtensions
             {
                 [ActivityTags.ServerAddress] = serviceClient.ConnectedOrgUriActual.Host,
                 [ActivityTags.DbSystem] = DataverseSystem,
-                [ActivityTags.DbName] = serviceClient.OrganizationDetail.UrlName,
+                [ActivityTags.DbName] = serviceClient.OrganizationDetail?.UrlName,
                 [ActivityTags.DbUser] = serviceClient.OAuthUserId,
                 [ActivityTags.DataverseOrgId] = serviceClient.ConnectedOrgId.ToString(),
                 [ActivityTags.DataverseOrgVersion] = serviceClient.ConnectedOrgVersion,
-                [ActivityTags.DataverseOrgType] = serviceClient.OrganizationDetail.OrganizationType,
+                [ActivityTags.DataverseOrgType] = serviceClient.OrganizationDetail?.OrganizationType,
                 [ActivityTags.DataverseOrgFriendlyName] = serviceClient.ConnectedOrgFriendlyName,
                 [ActivityTags.DataverseSdkVersion] = serviceClient.SdkVersionProperty,
-                [ActivityTags.DataverseSchemaType] = serviceClient.OrganizationDetail.SchemaType,
+                [ActivityTags.DataverseSchemaType] = serviceClient.OrganizationDetail?.SchemaType,
                 [ActivityTags.DataverseAuthType] = serviceClient.ActiveAuthenticationType,
-                [ActivityTags.DataverseGeo] = serviceClient.OrganizationDetail.Geo
+                [ActivityTags.DataverseGeo] = serviceClient.OrganizationDetail?.Geo
             };
     }
 
