@@ -35,6 +35,7 @@
     <PackageTags>ServiceClient Dataverse Dynamics CommonDataService CDS PowerApps PowerPlatform OpenTelemetry Monitoring Telemetry Tracing</PackageTags>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
 
   <PropertyGroup Label="SourceLinkProperties">

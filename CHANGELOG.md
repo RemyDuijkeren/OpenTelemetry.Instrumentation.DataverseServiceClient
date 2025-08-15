@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update activity creation to include SQL statements directly, improving traceability of operations.
 - Upgrade dependency: OpenTelemetry 1.10.0 (but support for 1.4 upwards)
 - Upgrade dependency: Microsoft.PowerPlatform.Dataverse.Client 1.2.2 (but support for 1.1.16 upwards)
+- Add nullable checks to CreateConnectionLevelTags() to prevent NullReferenceException
 
 ### Deprecated
 
